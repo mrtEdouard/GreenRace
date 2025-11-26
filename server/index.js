@@ -332,6 +332,131 @@ function broadcastGameState() {
   io.emit("gameStateUpdate", payload);
 }
 
+// Fonction récursive pour gérer les cases spéciales en chaîne
+function handleSpecialCell(player, delayBeforeCheck = 0) {
+  setTimeout(() => {
+    const cellType = getCellType(player.position);
+    
+    if (cellType === 'goodluck') {
+      gameState.phase = 'goodluck';
+      const luckEvent = getGoodLuckEvent();
+      
+      const oldPosition = player.position;
+      player.position = Math.min(player.position + luckEvent.value, TOTAL_CELLS);
+      const actualMovement = player.position - oldPosition;
+      
+      player.stats.goodLuckHits++;
+      player.stats.totalMovement += actualMovement;
+      
+      io.emit("luckEvent", {
+        slot: player.slot,
+        type: 'good',
+        event: luckEvent,
+        oldPosition: oldPosition,
+        newPosition: player.position,
+        actualMovement: actualMovement
+      });
+      
+      if (player.position >= TOTAL_CELLS) {
+        setTimeout(() => {
+          io.emit("gameWon", {
+            winner: {
+              slot: player.slot,
+              username: player.username,
+              avatar: player.avatar,
+            },
+          });
+          endGame('won');
+        }, 2000);
+        return;
+      }
+      
+      broadcastGameState();
+      
+      // Vérifier si la nouvelle position est aussi une case spéciale (cumul)
+      handleSpecialCell(player, 3000);
+      
+    } else if (cellType === 'badluck') {
+      gameState.phase = 'badluck';
+      const luckEvent = getBadLuckEvent();
+      
+      const oldPosition = player.position;
+      player.position = Math.max(player.position - luckEvent.value, 0);
+      const actualMovement = player.position - oldPosition;
+      
+      player.stats.badLuckHits++;
+      player.stats.totalMovement += actualMovement;
+      
+      io.emit("luckEvent", {
+        slot: player.slot,
+        type: 'bad',
+        event: luckEvent,
+        oldPosition: oldPosition,
+        newPosition: player.position,
+        actualMovement: actualMovement
+      });
+      
+      broadcastGameState();
+      
+      // Vérifier si la nouvelle position est aussi une case spéciale (cumul)
+      handleSpecialCell(player, 3000);
+      
+    } else if (cellType === 'card') {
+      gameState.phase = 'card';
+      gameState.cardInProgress = {
+        playerSlot: player.slot
+      };
+      
+      broadcastGameState();
+      
+      io.emit("physicalCard", {
+        slot: player.slot,
+        playerName: player.username
+      });
+      
+    } else if (cellType === 'question') {
+      gameState.phase = 'question';
+      
+      const questions = getRandomQuestions(5);
+      gameState.questionSession = {
+        playerSlot: player.slot,
+        questions: questions.map(q => ({
+          id: q.id,
+          question: q.question,
+          options: q.options,
+          difficulty: q.difficulty,
+          correctAnswer: q.correctAnswer,
+          explanation: q.explanation
+        })),
+        answers: [],
+        currentIndex: 0,
+        score: 0
+      };
+      
+      broadcastGameState();
+      
+      const currentQuestion = gameState.questionSession.questions[0];
+      io.to(player.socketId).emit("questionStart", {
+        totalQuestions: 5,
+        currentIndex: 0,
+        question: currentQuestion.question,
+        options: currentQuestion.options,
+        difficulty: currentQuestion.difficulty
+      });
+      
+    } else {
+      // Case normale - passer au tour suivant
+      gameState.phase = 'waiting';
+      broadcastGameState();
+      
+      setTimeout(() => {
+        nextTurn();
+        broadcastGameState();
+      }, 2000);
+    }
+  }, delayBeforeCheck);
+}
+
 function getRandomQuestions(count = 5) {
   // Filtrer les questions selon la difficulté sélectionnée
   let filteredQuestions = [];
@@ -697,132 +822,8 @@ io.on("connection", (socket) => {
       return;
     }
     
-    // Check cell type
-    const cellType = getCellType(player.position);
-    
-    // Délai de 2.5 secondes pour que les joueurs voient le résultat du dé
-    setTimeout(() => {
-      if (cellType === 'normal') {
-        gameState.phase = 'waiting';
-        broadcastGameState();
-        
-        setTimeout(() => {
-          nextTurn();
-          broadcastGameState();
-        }, 2000);
-      } else if (cellType === 'goodluck') {
-        gameState.phase = 'goodluck';
-        const luckEvent = getGoodLuckEvent();
-        
-        const oldPosition = player.position;
-        player.position = Math.min(player.position + luckEvent.value, TOTAL_CELLS);
-        const actualMovement = player.position - oldPosition;
-        
-        // Tracker good luck
-        player.stats.goodLuckHits++;
-        player.stats.totalMovement += actualMovement;
-        
-        io.emit("luckEvent", {
-          slot: player.slot,
-          type: 'good',
-          event: luckEvent,
-          oldPosition: oldPosition,
-          newPosition: player.position,
-          actualMovement: actualMovement
-        });
-        
-        if (player.position >= TOTAL_CELLS) {
-          io.emit("gameWon", {
-            winner: {
-              slot: player.slot,
-              username: player.username,
-              avatar: player.avatar,
-            },
-          });
-          endGame('won');
-          return;
-        }
-        
-        broadcastGameState();
-        
-        setTimeout(() => {
-          nextTurn();
-          broadcastGameState();
-        }, 3000);
-      } else if (cellType === 'badluck') {
-        gameState.phase = 'badluck';
-        const luckEvent = getBadLuckEvent();
-        
-        const oldPosition = player.position;
-        player.position = Math.max(player.position - luckEvent.value, 0);
-        const actualMovement = player.position - oldPosition;
-        
-        // Tracker bad luck
-        player.stats.badLuckHits++;
-        player.stats.totalMovement += actualMovement;
-        
-        io.emit("luckEvent", {
-          slot: player.slot,
-          type: 'bad',
-          event: luckEvent,
-          oldPosition: oldPosition,
-          newPosition: player.position,
-          actualMovement: actualMovement
-        });
-        
-        broadcastGameState();
-        
-        setTimeout(() => {
-          nextTurn();
-          broadcastGameState();
-        }, 3000);
-      } else if (cellType === 'card') {
-        // Physical card cell - player picks a card manually
-        gameState.phase = 'card';
-        gameState.cardInProgress = {
-          playerSlot: player.slot
-        };
-        
-        broadcastGameState();
-        
-        // Notify all players that current player must pick a physical card
-        io.emit("physicalCard", {
-          slot: player.slot,
-          playerName: player.username
-        });
-      } else if (cellType === 'question') {
-        gameState.phase = 'question';
-        
-        // Initialize question session
-        const questions = getRandomQuestions(5);
-        gameState.questionSession = {
-          playerSlot: player.slot,
-          questions: questions.map(q => ({
-            id: q.id,
-            question: q.question,
-            options: q.options,
-            difficulty: q.difficulty,
-            correctAnswer: q.correctAnswer,
-            explanation: q.explanation
-          })),
-          answers: [],
-          currentIndex: 0,
-          score: 0
-        };
-        
-        broadcastGameState();
-        
-        // Envoyer la première question directement au joueur
-        const currentQuestion = gameState.questionSession.questions[0];
-        io.to(player.socketId).emit("questionStart", {
-          totalQuestions: 5,
-          currentIndex: 0,
-          question: currentQuestion.question,
-          options: currentQuestion.options,
-          difficulty: currentQuestion.difficulty
-        });
-      }
-    }, 2500); // 2.5 secondes pour voir le résultat du dé
+    // Utiliser la nouvelle fonction pour gérer les cases spéciales (avec cumul possible)
+    handleSpecialCell(player, 2500); // 2.5 secondes pour voir le résultat du dé
   });
   
   // Answer question
@@ -911,24 +912,35 @@ io.on("connection", (socket) => {
       
       // Check win condition
       if (player.position >= TOTAL_CELLS) {
-        io.emit("gameWon", {
-          winner: {
-            slot: player.slot,
-            username: player.username,
-            avatar: player.avatar,
-          },
-        });
-        endGame('won');
+        // Délai avant d'afficher la victoire
+        setTimeout(() => {
+          io.emit("gameWon", {
+            winner: {
+              slot: player.slot,
+              username: player.username,
+              avatar: player.avatar,
+            },
+          });
+          endGame('won');
+        }, 2000);
         return;
       }
       
-      // Clear session and move to next turn
+      // Clear session
       gameState.questionSession = null;
       
-      setTimeout(() => {
-        nextTurn();
-        broadcastGameState();
-      }, 3000);
+      // Vérifier si la nouvelle position est une case spéciale (cumul possible)
+      const newCellType = getCellType(player.position);
+      if (newCellType !== 'normal') {
+        // Case spéciale - utiliser handleSpecialCell
+        handleSpecialCell(player, 3000);
+      } else {
+        // Case normale - passer au tour suivant
+        setTimeout(() => {
+          nextTurn();
+          broadcastGameState();
+        }, 3000);
+      }
     }
   });
   
