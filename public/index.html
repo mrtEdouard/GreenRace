@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Green IT – Multiplayer Waiting Room</title>
+    <link rel="stylesheet" href="style.css?v=2" />
+  </head>
+  <body>
+    <!-- ================== HEADER ================== -->
+    <header>
+      <img
+        src="images/Logo Green Race.png"
+        alt="Green Race Logo"
+      />
+    </header>
+
+    <!-- ================== PRE-LOBBY ================== -->
+    <section id="preLobby">
+      <div class="prelobby-card">
+        <h2 class="section-title">Welcome!</h2>
+        <p class="subtitle">
+          Enter your name and choose your eco avatar before joining the game.
+        </p>
+
+        <label class="form-row">
+          <span class="field-label">Username</span>
+          <input
+            type="text"
+            id="preUsernameInput"
+            placeholder="Type your nickname..."
+          />
+        </label>
+
+        <div class="form-row form-row-inline">
+          <button id="preAvatarButton" class="ghost-button">
+            Choose avatar
+          </button>
+          <span id="preSelectedAvatar" class="pre-avatar-label">
+            🌱 Default avatar selected
+          </span>
+        </div>
+
+        <button id="enterLobbyButton" class="primary-button" disabled>
+          Join game
+        </button>
+      </div>
+    </section>
+
+    <!-- ================== WAITING ROOM ================== -->
+    <section id="waitingRoom" class="hidden">
+      <div class="room-header">
+        <h2 class="section-title">Waiting Room</h2>
+        <button id="openAvatarModalButton" class="ghost-button avatar-button">
+          <span id="avatarButtonIcon" class="avatar-button-icon"></span>
+          <span class="avatar-button-label">Change avatar</span>
+        </button>
+      </div>
+
+      <div id="myInfo" class="info-card">
+        <p class="info-row">
+          <span class="info-label">Your slot</span>
+          <span class="info-value">Player <span id="mySlot">...</span></span>
+        </p>
+
+        <label class="form-row">
+          <span class="field-label">Username</span>
+          <input
+            type="text"
+            id="usernameInput"
+            placeholder="Your username in the lobby"
+          />
+        </label>
+      </div>
+
+      <div id="roomInfo" class="info-card">
+        <div class="room-info-header">
+          <p class="info-row">
+            <span class="info-label">Players connected</span>
+            <span id="playerCount" class="info-value">0</span>
+          </p>
+        </div>
+
+        <!-- 2x2 grid of player "windows" -->
+        <div id="playerGrid" class="player-grid"></div>
+      </div>
+
+      <!-- Question difficulty selector (Player 1 only) -->
+      <div id="difficultySelector" class="info-card hidden">
+        <p class="info-row">
+          <span class="info-label">🎯 Question Difficulty</span>
+        </p>
+        <div class="difficulty-options">
+          <label class="difficulty-option">
+            <input type="radio" name="difficulty" value="easy" checked />
+            <span>🌱 Easy</span>
+          </label>
+          <label class="difficulty-option">
+            <input type="radio" name="difficulty" value="medium" />
+            <span>🌿 Medium</span>
+          </label>
+          <label class="difficulty-option">
+            <input type="radio" name="difficulty" value="hard" />
+            <span>🔥 Hard</span>
+          </label>
+          <label class="difficulty-option">
+            <input type="radio" name="difficulty" value="easy-medium" />
+            <span>🌼 Easy + Medium</span>
+          </label>
+          <label class="difficulty-option">
+            <input type="radio" name="difficulty" value="medium-hard" />
+            <span>⚡ Medium + Hard</span>
+          </label>
+          <label class="difficulty-option">
+            <input type="radio" name="difficulty" value="easy-hard" />
+            <span>🍀 Easy + Hard</span>
+          </label>
+          <label class="difficulty-option">
+            <input type="radio" name="difficulty" value="mixed" />
+            <span>🌈 All Mixed</span>
+          </label>
+        </div>
+      </div>
+
+      <button id="startGameButton" class="primary-button" disabled>
+        Start Game (Player 1 only)
+      </button>
+
+      <p id="errorMessage" class="error hidden"></p>
+    </section>
+
+    <!-- End Game Button (Player 1 only, during game) -->
+    <button
+      id="endGameButton"
+      class="secondary-button end-game-btn hidden"
+    >
+      ⏹️ End Game
+    </button>
+
+    <!-- ================== GAME SCREEN ================== -->
+    <section id="gameScreen" class="hidden">
+      <div class="game-card">
+        <h2 class="section-title">Green Race Game</h2>
+
+        <!-- Turn indicator -->
+        <div id="turnIndicator" class="turn-indicator">
+          <span id="turnText">Player 1's turn</span>
+        </div>
+
+        <!-- Player positions -->
+        <div id="playerPositions" class="player-positions"></div>
+
+        <!-- Main game area -->
+        <div id="gameArea" class="game-area">
+          <!-- Rolling phase -->
+          <div id="rollingPhase" class="phase-content hidden">
+            <button id="rollDiceButton" class="primary-button">
+              🎲 Roll the Dice
+            </button>
+          </div>
+
+          <!-- Dice animation -->
+          <div id="diceAnimation" class="dice-animation hidden">
+            <div class="dice-rolling">🎲</div>
+            <p id="diceResult" class="dice-result"></p>
+          </div>
+
+          <!-- Waiting phase -->
+          <div id="waitingPhase" class="phase-content hidden">
+            <div class="waiting-message">
+              <p id="waitingText">Next turn...</p>
+            </div>
+          </div>
+
+          <!-- Question phase -->
+          <div id="questionPhase" class="phase-content hidden">
+            <div class="question-card">
+              <div class="question-header">
+                <h3>🌱 Eco Quiz</h3>
+                <div class="question-meta">
+                  <span id="questionProgress" class="question-progress"
+                    >Question 1/5</span
+                  >
+                  <span id="questionDifficulty" class="difficulty-badge"
+                    >Easy</span
+                  >
+                </div>
+              </div>
+
+              <div class="question-content">
+                <p id="questionText" class="question-text"></p>
+
+                <div id="questionOptions" class="question-options">
+                  <!-- Options will be dynamically added here -->
+                </div>
+              </div>
+
+              <div id="questionResult" class="question-result hidden">
+                <div id="resultIcon" class="result-icon"></div>
+                <p id="resultText" class="result-text"></p>
+                <p id="resultExplanation" class="result-explanation"></p>
+              </div>
+
+              <div class="question-footer">
+                <p id="questionScore" class="question-score">Score: 0/5</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card Type Selection -->
+          <div id="cardTypePhase" class="phase-content hidden">
+            <div class="card-modal">
+              <h3>🎴 Pick a card...</h3>
+              <p class="card-subtitle">Is it a Quiz or Game card?</p>
+              <div class="card-buttons">
+                <button
+                  onclick="selectCardType('quiz')"
+                  class="card-button quiz-btn"
+                >
+                  ❓ Quiz Card
+                </button>
+                <button
+                  onclick="selectCardType('game')"
+                  class="card-button game-btn"
+                >
+                  🎮 Game Card
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quiz Card Input -->
+          <div id="cardQuizPhase" class="phase-content hidden">
+            <div class="card-modal">
+              <h3>❓ Quiz Card</h3>
+              <p class="card-subtitle">You asked a player...</p>
+
+              <label class="card-label">
+                Enter player number:
+                <input
+                  type="number"
+                  id="quizTargetPlayer"
+                  min="1"
+                  max="4"
+                  class="card-input"
+                />
+              </label>
+
+              <p class="card-subtitle">Did they answer correctly?</p>
+              <div class="card-radio-group">
+                <label class="card-radio">
+                  <input
+                    type="radio"
+                    name="quizResult"
+                    id="quizCorrect"
+                    value="yes"
+                  />
+                  ✅ Yes (+1 for them, -1 for you)
+                </label>
+                <label class="card-radio">
+                  <input
+                    type="radio"
+                    name="quizResult"
+                    id="quizWrong"
+                    value="no"
+                  />
+                  ❌ No
+                </label>
+              </div>
+
+              <button onclick="submitQuizCard()" class="primary-button">
+                Submit
+              </button>
+            </div>
+          </div>
+
+          <!-- Game Card Type Selection -->
+          <div id="cardGameTypePhase" class="phase-content hidden">
+            <div class="card-modal">
+              <h3>🎮 Game Card</h3>
+              <p class="card-subtitle">Is it a 1vs1 or Solo game?</p>
+              <div class="card-buttons">
+                <button
+                  onclick="selectGameType('1v1')"
+                  class="card-button game-btn"
+                >
+                  🤼 1 vs 1
+                </button>
+                <button
+                  onclick="selectGameType('solo')"
+                  class="card-button solo-btn"
+                >
+                  👤 Solo
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Solo Game Result -->
+          <div id="cardGameSoloPhase" class="phase-content hidden">
+            <div class="card-modal">
+              <h3>👤 Solo Game</h3>
+              <p class="card-subtitle">Did you win?</p>
+              <div class="card-buttons">
+                <button
+                  onclick="submitSoloGame(true)"
+                  class="card-button win-btn"
+                >
+                  🏆 Yes (+2 cells)
+                </button>
+                <button
+                  onclick="submitSoloGame(false)"
+                  class="card-button lose-btn"
+                >
+                  ❌ No (-2 cells)
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 1vs1 Game Result -->
+          <div id="cardGame1v1Phase" class="phase-content hidden">
+            <div class="card-modal">
+              <h3>🤼 1 vs 1 Game</h3>
+
+              <label class="card-label">
+                Enter opponent player number:
+                <input
+                  type="number"
+                  id="gameOpponent"
+                  min="1"
+                  max="4"
+                  class="card-input"
+                />
+              </label>
+
+              <p class="card-subtitle">Did you win?</p>
+              <div class="card-radio-group">
+                <label class="card-radio">
+                  <input
+                    type="radio"
+                    name="gameResult"
+                    id="gameWon"
+                    value="won"
+                  />
+                  🏆 Yes (+1 for you, -1 for opponent)
+                </label>
+                <label class="card-radio">
+                  <input
+                    type="radio"
+                    name="gameResult"
+                    id="gameLost"
+                    value="lost"
+                  />
+                  ❌ No (-1 for you, +1 for opponent)
+                </label>
+              </div>
+
+              <button onclick="submit1v1Game()" class="primary-button">
+                Submit
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================== AVATAR MODAL ================== -->
+    <div id="avatarModal" class="modal hidden">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content">
+        <h3>Select your eco avatar</h3>
+        <p class="modal-subtitle">
+          Choose a cute 3D-style character that represents your Green IT spirit
+          🌍
+        </p>
+
+        <div class="avatar-grid">
+          <button class="avatar-card" data-avatar-id="avatarCat">
+            <lottie-player
+              src="avatars/Cat laughing loudly. HahahahLOL emojisticker animation.json"
+              background="transparent"
+              speed="1"
+              style="width: 80px; height: 80px; margin: 0 auto 8px auto"
+              loop
+              autoplay
+            ></lottie-player>
+            <div class="avatar-name">Cuttie cat laughing</div>
+          </button>
+
+          <button class="avatar-card" data-avatar-id="avatarPanda">
+            <lottie-player
+              src="avatars/Cute little panda sleeping.json"
+              background="transparent"
+              speed="1"
+              style="width: 80px; height: 80px; margin: 0 auto 8px auto"
+              loop
+              autoplay
+            ></lottie-player>
+            <div class="avatar-name">Sleepy panda</div>
+          </button>
+
+          <button class="avatar-card" data-avatar-id="avatarOwl">
+            <lottie-player
+              src="avatars/Cute Owl.json"
+              background="transparent"
+              speed="1"
+              style="width: 80px; height: 80px; margin: 0 auto 8px auto"
+              loop
+              autoplay
+            ></lottie-player>
+            <div class="avatar-name">Cute nighty owl</div>
+          </button>
+
+          <button class="avatar-card" data-avatar-id="avatarDog">
+            <lottie-player
+              src="avatars/Happy Dog.json"
+              background="transparent"
+              speed="1"
+              style="width: 80px; height: 80px; margin: 0 auto 8px auto"
+              loop
+              autoplay
+            ></lottie-player>
+            <div class="avatar-name">Happy funny dog</div>
+          </button>
+
+          <button class="avatar-card" data-avatar-id="avatarEmoji">
+            <lottie-player
+              src="avatars/Kawaii emoji saying hi.json"
+              background="transparent"
+              speed="1"
+              style="width: 80px; height: 80px; margin: 0 auto 8px auto"
+              loop
+              autoplay
+            ></lottie-player>
+            <div class="avatar-name">Kawaiiii emojii</div>
+          </button>
+
+          <button class="avatar-card" data-avatar-id="avatarSnake">
+            <lottie-player
+              src="avatars/Snake.json"
+              background="transparent"
+              speed="1"
+              style="width: 80px; height: 80px; margin: 0 auto 8px auto"
+              loop
+              autoplay
+            ></lottie-player>
+            <div class="avatar-name">Psssssssss snakyy</div>
+          </button>
+        </div>
+
+        <div class="modal-actions">
+          <button id="closeAvatarModalButton" class="secondary-button">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Save Game Modal -->
+    <div id="saveGameModal" class="modal hidden">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content">
+        <h3>🏆 Game Over!</h3>
+        <p id="saveModalSubtitle" class="modal-subtitle">
+          Would you like to save this game to history?
+        </p>
+        <div
+          id="gameSummaryPreview"
+          style="
+            margin: 20px 0;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 12px;
+          "
+        >
+          <!-- Summary will be inserted here -->
+        </div>
+        
+        <!-- Controls for Player 1 only -->
+        <div id="hostControls">
+          <label class="form-row">
+            <span class="field-label">Game Name</span>
+            <input
+              type="text"
+              id="gameNameInput"
+              placeholder="Enter a name for this game..."
+              maxlength="50"
+            />
+          </label>
+          <div class="modal-actions" style="display: flex; gap: 12px">
+            <button id="saveGameBtn" class="primary-button" style="flex: 1">
+              💾 Save Game
+            </button>
+            <button id="skipSaveBtn" class="secondary-button" style="flex: 1">
+              Skip
+            </button>
+          </div>
+        </div>
+        
+        <!-- Message for other players -->
+        <div id="waitingForHost" class="hidden" style="text-align: center; padding: 20px;">
+          <p style="font-size: 18px; font-weight: 700; color: var(--primary); margin-bottom: 12px;">
+            ⏳ Waiting for host...
+          </p>
+          <p style="font-size: 14px; color: #7f8c8d;">
+            Player 1 is deciding whether to save the game.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- History Modal -->
+    <div id="historyModal" class="modal hidden">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content" style="max-width: 900px">
+        <h3>📜 Game History</h3>
+        <p class="modal-subtitle">Browse your saved games and statistics</p>
+        <div
+          id="historyList"
+          style="margin-top: 20px; max-height: 500px; overflow-y: auto"
+        >
+          <!-- History items will be inserted here -->
+        </div>
+        <div class="modal-actions">
+          <button id="closeHistoryBtn" class="secondary-button">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- History Button (small round button top right) -->
+    <button
+      id="historyButton"
+      class="history-round-btn"
+      title="View Game History"
+    >
+      📜
+    </button>
+
+    <!-- RGPD Modal -->
+    <div id="rgpdModal" class="modal hidden">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content rgpd-modal">
+        <h3>🔒 Privacy & Data Protection (GDPR)</h3>
+        <div class="rgpd-content">
+          <h4>1. Data Collection</h4>
+          <p>
+            Green Race collects and stores the following personal data when you save a game:
+          </p>
+          <ul>
+            <li><strong>Username:</strong> The name you choose to identify yourself in the game</li>
+            <li><strong>Game statistics:</strong> Scores, moves, and gameplay data</li>
+            <li><strong>Session data:</strong> Temporary data stored in your browser (localStorage)</li>
+          </ul>
+
+          <h4>2. Purpose of Data Processing</h4>
+          <p>
+            Your data is used exclusively for:
+          </p>
+          <ul>
+            <li>Displaying game history and statistics</li>
+            <li>Reconnecting you to ongoing games</li>
+            <li>Improving gameplay experience</li>
+          </ul>
+
+          <h4>3. Data Storage</h4>
+          <p>
+            Game data is stored locally on the server running Green Race. No data is shared with third parties.
+          </p>
+
+          <h4>4. Your Rights (GDPR)</h4>
+          <p>
+            In accordance with the General Data Protection Regulation (GDPR), you have the right to:
+          </p>
+          <ul>
+            <li><strong>Access:</strong> Request a copy of your stored data</li>
+            <li><strong>Rectification:</strong> Request correction of inaccurate data</li>
+            <li><strong>Erasure:</strong> Request deletion of your data</li>
+            <li><strong>Portability:</strong> Receive your data in a structured format</li>
+          </ul>
+
+          <h4>5. Data Retention</h4>
+          <p>
+            Saved game data is retained indefinitely unless you request deletion. Session data expires when you close your browser.
+          </p>
+
+          <h4>6. Contact</h4>
+          <p>
+            For any questions or requests regarding your personal data, please contact the administrator of this Green Race instance.
+          </p>
+
+          <p style="margin-top: 20px; font-size: 12px; color: #7f8c8d;">
+            <strong>Note:</strong> By playing Green Race and saving games, you consent to this data processing.
+          </p>
+        </div>
+        <div class="modal-actions">
+          <button id="closeRgpdBtn" class="secondary-button">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-content">
+        <p>🌱 <strong>Green Race</strong> - Eco-Friendly Multiplayer Quiz Game</p>
+        <div class="footer-links">
+          <a class="footer-link" id="openRgpdLink">🔒 Privacy & GDPR</a>
+          <span style="color: #bdc3c7;">•</span>
+          <span style="color: #7f8c8d;">Made with ❤️ for the planet</span>
+        </div>
+        <p style="margin-top: 12px; font-size: 12px; color: #7f8c8d;">
+          © 2025 Green Race - All rights reserved
+        </p>
+      </div>
+    </footer>
+
+    <!-- Socket.IO client -->
+    <script src="/socket.io/socket.io.js"></script>
+    <!-- Client logic -->
+    <script src="client.js"></script>
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+  </body>
+</html>

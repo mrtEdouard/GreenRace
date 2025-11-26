@@ -1,0 +1,1510 @@
+/* ==========================================
+   GREEN RACE - Kahoot Style (Eco Theme)
+   ========================================== */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  /* Eco Colors - Kahoot style */
+  --eco-green: #2ecc71;
+  --eco-forest: #27ae60;
+  --eco-ocean: #3498db;
+  --eco-earth: #8b4513;
+  --eco-sun: #f39c12;
+  --eco-leaf: #1abc9c;
+  --eco-purple: #9b59b6;
+  
+  /* Kahoot-inspired vibrant palette */
+  --kahoot-purple: #46178f;
+  --kahoot-pink: #e21b3c;
+  --kahoot-blue: #1368ce;
+  --kahoot-orange: #ff8a1f;
+  
+  /* Adapted for Green Race */
+  --primary: var(--eco-green);
+  --secondary: var(--eco-ocean);
+  --accent: var(--eco-sun);
+  --dark: #2c3e50;
+  --light: #ecf0f1;
+  --white: #ffffff;
+}
+
+body {
+  font-family: 'Montserrat', 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: linear-gradient(135deg, #00bf63 0%, #3e8c73 100%);
+  background-attachment: fixed;
+  color: var(--dark);
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+  padding-top: 82px; /* Space for fixed header */
+}
+
+header {
+  background: var(--white);
+  padding: 16px 20px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 1000;
+}
+
+header img {
+  height: 60px;
+  width: auto;
+  max-width: 200px;
+  object-fit: contain;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+h1 {
+  background: var(--white);
+  padding: 20px;
+  text-align: center;
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--primary);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ==========================================
+   CONTAINERS - Kahoot Card Style
+   ========================================== */
+
+#preLobby,
+#waitingRoom,
+#gameScreen {
+  max-width: 1000px;
+  margin: 30px auto;
+  padding: 20px;
+}
+
+.prelobby-card,
+#waitingRoom,
+.game-card {
+  background: var(--white);
+  border-radius: 24px;
+  padding: 40px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  transform: translateY(0);
+  transition: transform 0.3s ease;
+}
+
+.section-title {
+  font-size: 32px;
+  font-weight: 900;
+  color: var(--primary);
+  margin-bottom: 16px;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.subtitle {
+  font-size: 16px;
+  color: var(--dark);
+  margin-bottom: 30px;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* ==========================================
+   FORMS - Kahoot Style
+   ========================================== */
+
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.form-row-inline {
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.field-label {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--dark);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+input[type="text"],
+input[type="number"] {
+  padding: 16px 20px;
+  border: 3px solid var(--light);
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: 600;
+  transition: all 0.2s;
+  outline: none;
+  background: var(--white);
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.2);
+  transform: scale(1.02);
+}
+
+/* ==========================================
+   BUTTONS - Vibrant Kahoot Style
+   ========================================== */
+
+.primary-button,
+.ghost-button,
+.secondary-button {
+  padding: 18px 36px;
+  border-radius: 16px;
+  font-size: 18px;
+  font-weight: 900;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-block;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.primary-button {
+  background: linear-gradient(135deg, var(--eco-green), var(--eco-forest));
+  color: var(--white);
+}
+
+.primary-button:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(46, 204, 113, 0.4);
+}
+
+.primary-button:active:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.primary-button:disabled {
+  background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+  cursor: not-allowed;
+  opacity: 0.6;
+  box-shadow: none;
+}
+
+.ghost-button,
+.secondary-button {
+  background: var(--white);
+  color: var(--primary);
+  border: 3px solid var(--primary);
+}
+
+.ghost-button:hover,
+.secondary-button:hover {
+  background: var(--primary);
+  color: var(--white);
+  transform: translateY(-3px);
+}
+
+/* End Game Button */
+.end-game-btn {
+  position: fixed;
+  top: 100px;
+  right: 20px;
+  z-index: 500;
+  padding: 14px 24px;
+  font-size: 16px;
+}
+
+/* ==========================================
+   AVATAR
+   ========================================== */
+
+.avatar-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar-button-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.pre-avatar-label {
+  font-size: 16px;
+  color: var(--dark);
+  font-weight: 600;
+}
+
+/* ==========================================
+   ROOM INFO - Colorful Cards
+   ========================================== */
+
+.room-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.info-card {
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 20px;
+  border: 3px solid var(--light);
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.info-label {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--dark);
+  text-transform: uppercase;
+}
+
+.info-value {
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--primary);
+}
+
+/* ==========================================
+   PLAYER GRID - Vibrant Cards
+   ========================================== */
+
+.player-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.player-card {
+  background: linear-gradient(135deg, #f8f9fa, #ffffff);
+  border: 4px solid var(--light);
+  border-radius: 20px;
+  padding: 24px;
+  text-align: center;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.player-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: linear-gradient(90deg, var(--eco-green), var(--eco-ocean), var(--eco-sun));
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.player-card.me {
+  border-color: var(--primary);
+  background: linear-gradient(135deg, rgba(46, 204, 113, 0.1), rgba(52, 152, 219, 0.1));
+  transform: scale(1.02);
+}
+
+.player-card.me::before {
+  opacity: 1;
+}
+
+.player-avatar-circle {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--eco-green), var(--eco-ocean));
+  border: 5px solid var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 20px rgba(46, 204, 113, 0.3);
+  transition: transform 0.3s;
+  font-size: 50px;
+  overflow: hidden;
+}
+
+.player-avatar-circle lottie-player {
+  width: 100px;
+  height: 100px;
+}
+
+.player-card:hover .player-avatar-circle {
+  transform: rotate(5deg) scale(1.1);
+}
+
+.player-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.player-slot {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+}
+
+.player-name {
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--dark);
+  text-transform: uppercase;
+}
+
+.player-avatar-label {
+  font-size: 13px;
+  color: #7f8c8d;
+  font-weight: 600;
+}
+
+/* ==========================================
+   GAME SCREEN - Bold Colors
+   ========================================== */
+
+.turn-indicator {
+  background: linear-gradient(135deg, var(--eco-green), var(--eco-forest));
+  border: none;
+  border-radius: 16px;
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 24px;
+  box-shadow: 0 6px 20px rgba(46, 204, 113, 0.3);
+}
+
+#turnText {
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--white);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* ==========================================
+   PLAYER POSITIONS - Game Cards
+   ========================================== */
+
+.player-positions {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.position-card {
+  background: var(--white);
+  border: 4px solid var(--light);
+  border-radius: 20px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  transition: all 0.3s;
+}
+
+.position-card.active-turn {
+  border-color: var(--primary);
+  background: linear-gradient(135deg, rgba(46, 204, 113, 0.15), rgba(52, 152, 219, 0.15));
+  transform: scale(1.05);
+  box-shadow: 0 8px 24px rgba(46, 204, 113, 0.4);
+}
+
+.position-card.disconnected {
+  border-color: #e74c3c;
+  background: linear-gradient(135deg, rgba(231, 76, 60, 0.1), rgba(192, 57, 43, 0.1));
+  opacity: 0.7;
+}
+
+.position-card.disconnected .position-player-avatar {
+  opacity: 0.5;
+  filter: grayscale(100%);
+}
+
+.connection-status {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 12px;
+  display: inline-block;
+  margin-top: 4px;
+}
+
+.connection-status.online {
+  background: rgba(46, 204, 113, 0.2);
+  color: #27ae60;
+}
+
+.connection-status.offline {
+  background: rgba(231, 76, 60, 0.2);
+  color: #c0392b;
+}
+
+.position-player-number {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: var(--primary);
+  color: var(--white);
+  font-size: 14px;
+  font-weight: 900;
+  padding: 6px 12px;
+  border-radius: 20px;
+}
+
+.position-player-avatar {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--eco-green), var(--eco-ocean));
+  border: 4px solid var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.position-player-name {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--dark);
+  text-transform: uppercase;
+}
+
+.position-value {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--white);
+  background: var(--primary);
+  padding: 8px 16px;
+  border-radius: 12px;
+}
+
+/* ==========================================
+   GAME AREA - Playful Style
+   ========================================== */
+
+.game-area {
+  min-height: 350px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  border-radius: 20px;
+  border: 4px solid var(--light);
+}
+
+.phase-content {
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+/* ==========================================
+   DICE - Fun Animation
+   ========================================== */
+
+.dice-animation {
+  text-align: center;
+}
+
+.dice-rolling {
+  font-size: 120px;
+  animation: roll 0.5s ease-in-out infinite;
+  filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.2));
+}
+
+@keyframes roll {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.2); }
+}
+
+.dice-result {
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--primary);
+  margin-top: 20px;
+  text-transform: uppercase;
+}
+
+/* ==========================================
+   QUESTIONS - Kahoot Style Cards
+   ========================================== */
+
+.question-card {
+  background: var(--white);
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+.question-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.question-header h3 {
+  font-size: 24px;
+  font-weight: 900;
+  color: var(--dark);
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.question-meta {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.question-progress {
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--white);
+  background: var(--eco-ocean);
+  padding: 8px 16px;
+  border-radius: 20px;
+}
+
+.difficulty-badge {
+  font-size: 13px;
+  font-weight: 900;
+  text-transform: uppercase;
+  padding: 8px 16px;
+  border-radius: 20px;
+  color: var(--white);
+}
+
+.difficulty-easy { background: var(--eco-green); }
+.difficulty-medium { background: var(--eco-sun); }
+.difficulty-hard { background: #e74c3c; }
+
+.question-text {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 24px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.question-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.option-button {
+  padding: 24px 20px;
+  font-size: 18px;
+  font-weight: 900;
+  text-align: center;
+  border: 4px solid transparent;
+  border-radius: 16px;
+  background: var(--light);
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--dark);
+  text-transform: uppercase;
+  position: relative;
+  overflow: hidden;
+}
+
+.option-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+  transition: left 0.5s;
+}
+
+.option-button:hover::before {
+  left: 100%;
+}
+
+.option-button:hover {
+  border-color: var(--primary);
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.option-button:nth-child(1) { background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; }
+.option-button:nth-child(2) { background: linear-gradient(135deg, #3498db, #2980b9); color: white; }
+.option-button:nth-child(3) { background: linear-gradient(135deg, #f39c12, #e67e22); color: white; }
+.option-button:nth-child(4) { background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; }
+
+.option-button.correct {
+  background: linear-gradient(135deg, #2ecc71, #27ae60);
+  border-color: #1e8449;
+  animation: pulse 0.5s ease;
+}
+
+.option-button.incorrect {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  border-color: #a93226;
+  animation: shake 0.5s ease;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-10px); }
+  75% { transform: translateX(10px); }
+}
+
+.question-result {
+  margin-top: 24px;
+  padding: 24px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  text-align: center;
+  border: 3px solid var(--light);
+}
+
+.result-icon {
+  font-size: 64px;
+  margin-bottom: 12px;
+}
+
+.result-text {
+  font-size: 24px;
+  font-weight: 900;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+
+.result-explanation {
+  font-size: 16px;
+  color: var(--dark);
+  font-weight: 600;
+}
+
+.question-footer {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.question-score {
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--primary);
+  text-transform: uppercase;
+}
+
+/* ==========================================
+   CARD MODALS - Vibrant
+   ========================================== */
+
+.card-modal {
+  background: var(--white);
+  border-radius: 20px;
+  padding: 32px;
+  max-width: 600px;
+  margin: 0 auto;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+.card-modal h3 {
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--primary);
+  margin-bottom: 16px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.card-subtitle {
+  font-size: 16px;
+  color: var(--dark);
+  margin-bottom: 24px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.card-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.card-button {
+  padding: 24px 20px;
+  font-size: 18px;
+  font-weight: 900;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  color: white;
+}
+
+.quiz-btn {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+
+.game-btn {
+  background: linear-gradient(135deg, #3498db, #2980b9);
+}
+
+.card-button:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.card-label {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+
+.card-input {
+  padding: 16px 20px;
+  border: 3px solid var(--light);
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.card-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.card-radio {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border: 3px solid var(--light);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 16px;
+  font-weight: 700;
+  background: var(--white);
+}
+
+.card-radio:hover {
+  border-color: var(--primary);
+  background: rgba(46, 204, 113, 0.1);
+  transform: translateX(4px);
+}
+
+.card-radio input[type="radio"] {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+}
+
+/* ==========================================
+   MODAL - Overlay
+   ========================================== */
+
+.modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 900;
+  padding: 20px;
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+}
+
+.modal-content {
+  position: relative;
+  z-index: 901;
+  background: var(--white);
+  border-radius: 24px;
+  padding: 40px;
+  width: 100%;
+  max-width: 800px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.modal-content h3 {
+  font-size: 32px;
+  font-weight: 900;
+  color: var(--primary);
+  margin-bottom: 24px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.avatar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+}
+
+.avatar-card {
+  border: 4px solid var(--light);
+  border-radius: 16px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  background: var(--white);
+}
+
+.avatar-card:hover {
+  border-color: var(--primary);
+  background: linear-gradient(135deg, rgba(46, 204, 113, 0.1), rgba(52, 152, 219, 0.1));
+  transform: translateY(-4px) rotate(2deg);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.avatar-emoji-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  margin: 0 auto 12px;
+  background: linear-gradient(135deg, var(--eco-green), var(--eco-ocean));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.avatar-name {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--dark);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.avatar-desc {
+  font-size: 13px;
+  color: #7f8c8d;
+  font-weight: 600;
+}
+
+/* ==========================================
+   ERROR - Alert Style
+   ========================================== */
+
+.error {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  border: none;
+  border-radius: 12px;
+  padding: 16px 20px;
+  color: var(--white);
+  font-size: 16px;
+  font-weight: 900;
+  margin-top: 20px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+}
+
+/* ==========================================
+   WAITING MESSAGE
+   ========================================== */
+
+.waiting-message {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+#waitingText {
+  font-size: 24px;
+  font-weight: 900;
+  color: var(--dark);
+  text-transform: uppercase;
+}
+
+
+/* ==========================================
+   WHEEL
+   ========================================== */
+
+.wheel-container {
+  width: 280px;
+  height: 280px;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* ==========================================
+   DIFFICULTY SELECTOR
+   ========================================== */
+
+.difficulty-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.difficulty-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border: 3px solid var(--light);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 15px;
+  font-weight: 700;
+  background: var(--white);
+}
+
+.difficulty-option:hover {
+  border-color: var(--primary);
+  background: rgba(46, 204, 113, 0.1);
+  transform: translateY(-2px);
+}
+
+.difficulty-option input[type="radio"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: var(--primary);
+}
+
+.difficulty-option input[type="radio"]:checked + span {
+  color: var(--primary);
+}
+
+.difficulty-option:has(input:checked) {
+  border-color: var(--primary);
+  background: rgba(46, 204, 113, 0.15);
+  box-shadow: 0 4px 12px rgba(46, 204, 113, 0.2);
+}
+
+/* ==========================================
+   HISTORY ROUND BUTTON
+   ========================================== */
+
+.history-round-btn {
+  position: fixed;
+  top: 100px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--eco-green), var(--eco-ocean));
+  border: none;
+  font-size: 24px;
+  color: var(--white);
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  z-index: 500;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.history-round-btn:hover {
+  transform: scale(1.1) rotate(10deg);
+  box-shadow: 0 6px 24px rgba(46, 204, 113, 0.4);
+}
+
+.history-round-btn:active {
+  transform: scale(0.95);
+}
+
+/* ==========================================
+   FOOTER & RGPD
+   ========================================== */
+
+.footer {
+  background: var(--white);
+  padding: 20px;
+  text-align: center;
+  margin-top: 40px;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.footer-content {
+  max-width: 1000px;
+  margin: 0 auto;
+  font-size: 14px;
+  color: var(--dark);
+}
+
+.footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.footer-link {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.footer-link:hover {
+  text-decoration: underline;
+  transform: translateY(-2px);
+}
+
+.rgpd-modal {
+  max-width: 700px !important;
+}
+
+.rgpd-content {
+  text-align: left;
+  line-height: 1.8;
+}
+
+.rgpd-content h4 {
+  color: var(--primary);
+  margin-top: 20px;
+  margin-bottom: 10px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.rgpd-content p {
+  margin-bottom: 12px;
+  color: var(--dark);
+}
+
+.rgpd-content ul {
+  margin-left: 20px;
+  margin-bottom: 12px;
+}
+
+.rgpd-content li {
+  margin-bottom: 8px;
+}
+
+/* ==========================================
+   MOBILE OPTIMIZATIONS
+   ========================================== */
+
+@media (max-width: 768px) {
+  body {
+    background: linear-gradient(135deg, #00bf63 0%, #3e8c73 100%);
+    padding-top: 70px; /* Smaller header on mobile */
+    font-size: 14px;
+  }
+
+  header {
+    padding: 12px 15px;
+    gap: 12px;
+  }
+
+  header img {
+    height: 50px;
+    max-width: 180px;
+  }
+
+  header h1 {
+    font-size: 18px;
+    letter-spacing: 1px;
+  }
+
+  .history-round-btn {
+    top: 70px;
+    width: 45px;
+    height: 45px;
+    font-size: 20px;
+    right: 15px;
+  }
+
+  h1 {
+    font-size: 14px;
+    padding: 10px;
+    letter-spacing: 0.5px;
+    margin: 0;
+  }
+
+  #preLobby,
+  #waitingRoom,
+  #gameScreen {
+    padding: 8px;
+    margin: 0 auto;
+    max-width: 100%;
+  }
+
+  .prelobby-card,
+  #waitingRoom,
+  .game-card {
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+  .section-title {
+    font-size: 22px;
+    margin-bottom: 12px;
+    letter-spacing: 0.5px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+  }
+
+  .player-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .player-card {
+    padding: 16px 12px;
+  }
+
+  .player-avatar-circle {
+    width: 85px;
+    height: 85px;
+    font-size: 42px;
+    border: 3px solid var(--white);
+  }
+
+  .player-avatar-circle lottie-player {
+    width: 85px;
+    height: 85px;
+  }
+
+  .player-slot {
+    font-size: 11px;
+  }
+
+  .player-name {
+    font-size: 16px;
+  }
+
+  .player-avatar-label {
+    font-size: 12px;
+  }
+
+  .player-positions {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .position-card {
+    padding: 12px;
+  }
+
+  .position-player-avatar {
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
+  }
+
+  .position-player-avatar lottie-player {
+    width: 50px;
+    height: 50px;
+  }
+
+  .position-player-name {
+    font-size: 12px;
+  }
+
+  .position-value {
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+
+  .position-player-number {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+
+  .connection-status {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+
+  .game-area {
+    min-height: 200px;
+    padding: 16px;
+  }
+
+  .question-card,
+  .card-modal {
+    padding: 20px;
+  }
+
+  .question-options {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .option-button {
+    padding: 20px 16px;
+    font-size: 16px;
+  }
+
+  .modal-content {
+    padding: 24px;
+    max-width: 95%;
+  }
+
+  .avatar-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .primary-button,
+  .ghost-button,
+  .secondary-button {
+    width: 100%;
+    padding: 16px 20px;
+    font-size: 16px;
+  }
+
+  input[type="text"],
+  input[type="number"] {
+    padding: 14px 16px;
+    font-size: 16px;
+    width: 100%;
+  }
+
+  .field-label {
+    font-size: 14px;
+  }
+
+  .form-row {
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .dice-rolling {
+    font-size: 80px;
+  }
+
+  .turn-indicator {
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+
+  #turnText {
+    font-size: 16px;
+  }
+
+  .card-buttons {
+    grid-template-columns: 1fr;
+  }
+
+  .difficulty-options {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .difficulty-option {
+    padding: 14px 16px;
+    font-size: 15px;
+  }
+
+  .end-game-btn {
+    top: 75px;
+    right: 15px;
+    padding: 12px 18px;
+    font-size: 14px;
+  }
+
+  .spectator-banner {
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  .game-history-item {
+    padding: 16px;
+  }
+
+  .history-header {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  .history-player-stats {
+    gap: 10px;
+  }
+
+  .footer {
+    padding: 20px 15px;
+    font-size: 13px;
+  }
+
+  /* Waiting room adjustments */
+  .difficulty-label {
+    font-size: 14px;
+  }
+
+  .start-game-btn {
+    padding: 16px 24px;
+    font-size: 16px;
+  }
+
+  /* Better spacing on mobile */
+  #preLobby > *,
+  #waitingRoom > *,
+  #gameScreen > * {
+    margin-bottom: 16px;
+  }
+
+  /* Avatar selection on mobile */
+  .avatar-selector-modal .modal-content {
+    padding: 20px;
+  }
+
+  .avatar-option {
+    padding: 12px;
+  }
+
+  .avatar-option lottie-player {
+    width: 70px;
+    height: 70px;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding-top: 65px;
+  }
+
+  header {
+    padding: 10px 12px;
+  }
+
+  header img {
+    height: 45px;
+    max-width: 160px;
+  }
+
+  header h1 {
+    font-size: 16px;
+  }
+
+  h1 {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .section-title {
+    font-size: 20px;
+  }
+
+  .subtitle {
+    font-size: 13px;
+  }
+
+  .question-header h3 {
+    font-size: 16px;
+  }
+
+  .question-text {
+    font-size: 15px;
+  }
+
+  .player-name {
+    font-size: 14px;
+  }
+
+  .primary-button,
+  .ghost-button,
+  .secondary-button {
+    padding: 14px 18px;
+    font-size: 15px;
+  }
+
+  .prelobby-card,
+  #waitingRoom,
+  .game-card {
+    padding: 14px;
+  }
+
+  .difficulty-option {
+    padding: 12px 14px;
+    font-size: 14px;
+  }
+}

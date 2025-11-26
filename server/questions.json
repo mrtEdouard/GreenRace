@@ -1,0 +1,804 @@
+{
+  "questions": [
+    {
+      "id": 1,
+      "difficulty": "easy",
+      "question": "What does 'Recycle' mean?",
+      "options": ["To throw away", "To turn waste into something new", "To burn waste"],
+      "correctAnswer": 1,
+      "explanation": "Reuse materials instead of making new ones."
+    },
+    {
+      "id": 2,
+      "difficulty": "easy",
+      "question": "Where should paper be thrown?",
+      "options": ["General waste", "Compost", "Recycling bin"],
+      "correctAnswer": 2,
+      "explanation": "Paper can be recycled many times."
+    },
+    {
+      "id": 3,
+      "difficulty": "easy",
+      "question": "Which one is e-waste?",
+      "options": ["Banana peel", "Old smartphone", "Plastic cup"],
+      "correctAnswer": 1,
+      "explanation": "Electronic devices = electronic waste."
+    },
+    {
+      "id": 4,
+      "difficulty": "easy",
+      "question": "What does 'Reduce' mean?",
+      "options": ["Use more", "Use fewer resources", "Stop recycling"],
+      "correctAnswer": 1,
+      "explanation": "Using less reduces pollution."
+    },
+    {
+      "id": 5,
+      "difficulty": "easy",
+      "question": "What energy comes from the sun?",
+      "options": ["Solar energy", "Coal energy", "Nuclear energy"],
+      "correctAnswer": 0,
+      "explanation": "Solar power is renewable."
+    },
+    {
+      "id": 6,
+      "difficulty": "easy",
+      "question": "What should you do with a dead battery?",
+      "options": ["Throw it in the bin", "Recycle it", "Burn it"],
+      "correctAnswer": 1,
+      "explanation": "Batteries must be recycled safely."
+    },
+    {
+      "id": 7,
+      "difficulty": "easy",
+      "question": "What is 'Green Energy'?",
+      "options": ["Energy that pollutes", "Energy from fossil fuels", "Energy from natural renewable sources"],
+      "correctAnswer": 2,
+      "explanation": "Sun, wind, water."
+    },
+    {
+      "id": 8,
+      "difficulty": "easy",
+      "question": "What is better for the planet?",
+      "options": ["Repair a device", "Buy a new device", "Throw away a device"],
+      "correctAnswer": 0,
+      "explanation": "Repairing extends product lifetime."
+    },
+    {
+      "id": 9,
+      "difficulty": "easy",
+      "question": "What does 'Eco-friendly' mean?",
+      "options": ["Good for the environment", "Dangerous for animals", "Toxic"],
+      "correctAnswer": 0,
+      "explanation": "Environmentally safe."
+    },
+    {
+      "id": 10,
+      "difficulty": "easy",
+      "question": "Should you unplug your charger when not in use?",
+      "options": ["Yes", "No", "Only at night"],
+      "correctAnswer": 0,
+      "explanation": "Chargers waste energy when plugged in."
+    },
+    {
+      "id": 11,
+      "difficulty": "easy",
+      "question": "Which material can be recycled many times?",
+      "options": ["Food", "Glass", "Wood"],
+      "correctAnswer": 1,
+      "explanation": "Glass is infinitely recyclable."
+    },
+    {
+      "id": 12,
+      "difficulty": "easy",
+      "question": "What color is commonly used for recycling bins?",
+      "options": ["Green/Blue", "Red", "Pink"],
+      "correctAnswer": 0,
+      "explanation": "Universal recycling colors."
+    },
+    {
+      "id": 13,
+      "difficulty": "easy",
+      "question": "Compost is made from…",
+      "options": ["Plastic", "Organic waste", "Metal"],
+      "correctAnswer": 1,
+      "explanation": "Food scraps become compost."
+    },
+    {
+      "id": 14,
+      "difficulty": "easy",
+      "question": "What does 'Reuse' mean?",
+      "options": ["Use something again", "Burn something", "Throw everything away"],
+      "correctAnswer": 0,
+      "explanation": "Reuse reduces waste."
+    },
+    {
+      "id": 15,
+      "difficulty": "easy",
+      "question": "How to save energy on a computer?",
+      "options": ["Leave it on", "Turn it off", "Increase brightness"],
+      "correctAnswer": 1,
+      "explanation": "Turning it off saves energy."
+    },
+    {
+      "id": 16,
+      "difficulty": "easy",
+      "question": "Which gas increases global warming the most?",
+      "options": ["Oxygen", "CO₂", "Helium"],
+      "correctAnswer": 1,
+      "explanation": "CO₂ is a greenhouse gas."
+    },
+    {
+      "id": 17,
+      "difficulty": "easy",
+      "question": "What is the goal of recycling?",
+      "options": ["Make more trash", "Reduce waste", "Destroy materials"],
+      "correctAnswer": 1,
+      "explanation": "Recycling limits pollution."
+    },
+    {
+      "id": 18,
+      "difficulty": "easy",
+      "question": "Which one is renewable energy?",
+      "options": ["Oil", "Wind power", "Gas"],
+      "correctAnswer": 1,
+      "explanation": "Wind never runs out."
+    },
+    {
+      "id": 19,
+      "difficulty": "easy",
+      "question": "What is better: deleting emails or keeping them forever?",
+      "options": ["Deleting", "Keeping", "Printing them"],
+      "correctAnswer": 0,
+      "explanation": "Emails stored = server energy."
+    },
+    {
+      "id": 20,
+      "difficulty": "easy",
+      "question": "Should plastic bottles go in general waste?",
+      "options": ["Yes", "No", "Sometimes"],
+      "correctAnswer": 1,
+      "explanation": "They should be recycled."
+    },
+    {
+      "id": 21,
+      "difficulty": "medium",
+      "question": "What is a digital carbon footprint?",
+      "options": ["CO₂ produced by digital activities", "Footprints on your screen", "CO₂ from trees"],
+      "correctAnswer": 0,
+      "explanation": "Internet & devices use energy."
+    },
+    {
+      "id": 22,
+      "difficulty": "medium",
+      "question": "Why do data centers use a lot of electricity?",
+      "options": ["For decoration", "To power and cool servers", "For games"],
+      "correctAnswer": 1,
+      "explanation": "Servers generate heat."
+    },
+    {
+      "id": 23,
+      "difficulty": "medium",
+      "question": "What does Eco-design mean?",
+      "options": ["Bigger websites", "Designing digital products with less impact", "Using more images"],
+      "correctAnswer": 1,
+      "explanation": "Eco-friendly digital design."
+    },
+    {
+      "id": 24,
+      "difficulty": "medium",
+      "question": "Why is product lifetime important?",
+      "options": ["More waste", "More energy", "Longer use = less pollution"],
+      "correctAnswer": 2,
+      "explanation": "Reduces manufacturing emissions."
+    },
+    {
+      "id": 25,
+      "difficulty": "medium",
+      "question": "What is green coding?",
+      "options": ["Bad coding", "Code that uses more energy", "Efficient code with low energy use"],
+      "correctAnswer": 2,
+      "explanation": "Optimizing algorithms."
+    },
+    {
+      "id": 26,
+      "difficulty": "medium",
+      "question": "Why avoid single-use plastic?",
+      "options": ["It's expensive", "It causes long-lasting pollution", "It tastes bad"],
+      "correctAnswer": 1,
+      "explanation": "Lasts hundreds of years."
+    },
+    {
+      "id": 27,
+      "difficulty": "medium",
+      "question": "What is virtualization?",
+      "options": ["Using several machines for one task", "Using one machine to run many systems", "Virtual reality gaming"],
+      "correctAnswer": 1,
+      "explanation": "Saves hardware & energy."
+    },
+    {
+      "id": 28,
+      "difficulty": "medium",
+      "question": "Why is cloud storage not 'free'?",
+      "options": ["It takes space", "It uses electricity from data centers", "It disappears"],
+      "correctAnswer": 1,
+      "explanation": "Storing data = energy."
+    },
+    {
+      "id": 29,
+      "difficulty": "medium",
+      "question": "What does 'Net Zero' mean?",
+      "options": ["Zero servers", "Balance between emissions and removal", "No emails"],
+      "correctAnswer": 1,
+      "explanation": "Equal emissions and absorption."
+    },
+    {
+      "id": 30,
+      "difficulty": "medium",
+      "question": "What does PUE measure?",
+      "options": ["Website speed", "Data center efficiency", "Water usage"],
+      "correctAnswer": 1,
+      "explanation": "Power Usage Effectiveness."
+    },
+    {
+      "id": 31,
+      "difficulty": "medium",
+      "question": "Why does video streaming pollute?",
+      "options": ["It's boring", "It transfers huge data", "It creates smoke"],
+      "correctAnswer": 1,
+      "explanation": "More data = more energy."
+    },
+    {
+      "id": 32,
+      "difficulty": "medium",
+      "question": "How can websites be greener?",
+      "options": ["Heavy images", "Long videos", "Optimized content"],
+      "correctAnswer": 2,
+      "explanation": "Less data = less CO₂."
+    },
+    {
+      "id": 33,
+      "difficulty": "medium",
+      "question": "What does 'Dispose of' mean?",
+      "options": ["To throw away", "To repair", "To recycle"],
+      "correctAnswer": 0,
+      "explanation": "Discarding items."
+    },
+    {
+      "id": 34,
+      "difficulty": "medium",
+      "question": "Why recycle electronics?",
+      "options": ["They are tasty", "They contain rare+toxic materials", "They are light"],
+      "correctAnswer": 1,
+      "explanation": "Metals can be reused."
+    },
+    {
+      "id": 35,
+      "difficulty": "medium",
+      "question": "What is repurposing?",
+      "options": ["Burning something", "Using something for a different new purpose", "Hiding something"],
+      "correctAnswer": 1,
+      "explanation": "Give a new life to objects."
+    },
+    {
+      "id": 36,
+      "difficulty": "hard",
+      "question": "How does Moore's Law affect the environment?",
+      "options": ["Less waste", "More upgrades → more waste", "Fewer devices"],
+      "correctAnswer": 1,
+      "explanation": "Faster tech = more pollution."
+    },
+    {
+      "id": 37,
+      "difficulty": "hard",
+      "question": "Why do large attachments pollute more?",
+      "options": ["They smell bad", "They require more data transfer", "They are colorful"],
+      "correctAnswer": 1,
+      "explanation": "More data = more server work."
+    },
+    {
+      "id": 38,
+      "difficulty": "hard",
+      "question": "Reducing image size helps because…",
+      "options": ["It looks ugly", "It reduces energy used for loading", "It changes colors"],
+      "correctAnswer": 1,
+      "explanation": "Less data = less CO₂."
+    },
+    {
+      "id": 39,
+      "difficulty": "hard",
+      "question": "Why is standby mode bad?",
+      "options": ["It freezes", "It still uses electricity", "It makes noise"],
+      "correctAnswer": 1,
+      "explanation": "\"Vampire\" energy."
+    },
+    {
+      "id": 40,
+      "difficulty": "hard",
+      "question": "Most polluting phase of a smartphone?",
+      "options": ["Transport", "Manufacturing", "Charging"],
+      "correctAnswer": 1,
+      "explanation": "Extraction + production."
+    },
+    {
+      "id": 41,
+      "difficulty": "hard",
+      "question": "What is digital waste?",
+      "options": ["Photos on the wall", "Unused files, emails, apps", "Books"],
+      "correctAnswer": 1,
+      "explanation": "Digital clutter wastes energy."
+    },
+    {
+      "id": 42,
+      "difficulty": "hard",
+      "question": "Why are rare earth metals a problem?",
+      "options": ["Too cheap", "Extraction pollutes", "They taste bad"],
+      "correctAnswer": 1,
+      "explanation": "Toxic mining."
+    },
+    {
+      "id": 43,
+      "difficulty": "hard",
+      "question": "How does virtualization reduce carbon footprint?",
+      "options": ["More servers", "Fewer physical machines needed", "Bigger buildings"],
+      "correctAnswer": 1,
+      "explanation": "One machine = many systems."
+    },
+    {
+      "id": 44,
+      "difficulty": "hard",
+      "question": "Why does dark mode save energy?",
+      "options": ["It's pretty", "OLED uses less power with dark pixels", "It fixes bugs"],
+      "correctAnswer": 1,
+      "explanation": "Black = low energy."
+    },
+    {
+      "id": 45,
+      "difficulty": "hard",
+      "question": "Average global e-waste recycling rate?",
+      "options": ["20%", "80%", "100%"],
+      "correctAnswer": 0,
+      "explanation": "Very low worldwide."
+    },
+    {
+      "id": 46,
+      "difficulty": "hard",
+      "question": "Why keep devices longer?",
+      "options": ["More pollution", "Less manufacturing emissions", "To look old-fashioned"],
+      "correctAnswer": 1,
+      "explanation": "Extends product lifetime."
+    },
+    {
+      "id": 47,
+      "difficulty": "hard",
+      "question": "Sustainable web design means…",
+      "options": ["Heavy pages", "Low-carbon efficient websites", "More animations"],
+      "correctAnswer": 1,
+      "explanation": "Faster, greener websites."
+    },
+    {
+      "id": 48,
+      "difficulty": "hard",
+      "question": "Why renewable energy for data centers?",
+      "options": ["For decoration", "They run 24/7 and use a lot of electricity", "To be louder"],
+      "correctAnswer": 1,
+      "explanation": "Massive electricity consumption."
+    },
+    {
+      "id": 49,
+      "difficulty": "hard",
+      "question": "How does deleting old photos help?",
+      "options": ["It frees local storage only", "It reduces cloud storage energy", "It makes your phone lighter"],
+      "correctAnswer": 1,
+      "explanation": "Servers store everything."
+    },
+    {
+      "id": 50,
+      "difficulty": "hard",
+      "question": "Why is the Internet a big polluter?",
+      "options": ["It travels a lot", "It uses huge energy globally", "It is noisy"],
+      "correctAnswer": 1,
+      "explanation": "Thousands of data centers."
+    },
+    {
+      "id": 51,
+      "difficulty": "easy",
+      "question": "What is the 3 R's rule?",
+      "options": ["Read, Run, Rest", "Reduce, Reuse, Recycle", "Red, Round, Rough"],
+      "correctAnswer": 1,
+      "explanation": "The three pillars of waste management."
+    },
+    {
+      "id": 52,
+      "difficulty": "easy",
+      "question": "Which bin should food waste go in?",
+      "options": ["Recycling bin", "Compost bin", "Glass bin"],
+      "correctAnswer": 1,
+      "explanation": "Organic waste becomes compost."
+    },
+    {
+      "id": 53,
+      "difficulty": "easy",
+      "question": "What does LED stand for?",
+      "options": ["Light Energy Device", "Light Emitting Diode", "Low Energy Darkness"],
+      "correctAnswer": 1,
+      "explanation": "LED bulbs use less energy than traditional bulbs."
+    },
+    {
+      "id": 54,
+      "difficulty": "easy",
+      "question": "Which transport is most eco-friendly?",
+      "options": ["Plane", "Car", "Bicycle"],
+      "correctAnswer": 2,
+      "explanation": "Bicycles produce zero emissions."
+    },
+    {
+      "id": 55,
+      "difficulty": "easy",
+      "question": "What does biodegradable mean?",
+      "options": ["Can be broken down by nature", "Made of metal", "Very expensive"],
+      "correctAnswer": 0,
+      "explanation": "Nature can decompose biodegradable materials."
+    },
+    {
+      "id": 56,
+      "difficulty": "easy",
+      "question": "Should you turn off lights when leaving a room?",
+      "options": ["Yes", "No", "Only during day"],
+      "correctAnswer": 0,
+      "explanation": "Saves electricity and reduces waste."
+    },
+    {
+      "id": 57,
+      "difficulty": "easy",
+      "question": "What is deforestation?",
+      "options": ["Planting trees", "Cutting down forests", "Watering plants"],
+      "correctAnswer": 1,
+      "explanation": "Destroying forests harms the environment."
+    },
+    {
+      "id": 58,
+      "difficulty": "easy",
+      "question": "Which is NOT renewable energy?",
+      "options": ["Coal", "Solar", "Wind"],
+      "correctAnswer": 0,
+      "explanation": "Coal is a fossil fuel that runs out."
+    },
+    {
+      "id": 59,
+      "difficulty": "easy",
+      "question": "What is pollution?",
+      "options": ["Clean air", "Harmful substances in the environment", "Fresh water"],
+      "correctAnswer": 1,
+      "explanation": "Pollution damages nature and health."
+    },
+    {
+      "id": 60,
+      "difficulty": "easy",
+      "question": "Can aluminum cans be recycled?",
+      "options": ["Yes", "No", "Only once"],
+      "correctAnswer": 0,
+      "explanation": "Aluminum is infinitely recyclable."
+    },
+    {
+      "id": 61,
+      "difficulty": "medium",
+      "question": "What percentage of a plastic bottle can be recycled?",
+      "options": ["10%", "50%", "Almost 100%"],
+      "correctAnswer": 2,
+      "explanation": "Most plastic bottles are fully recyclable if sorted properly."
+    },
+    {
+      "id": 62,
+      "difficulty": "medium",
+      "question": "What is greenwashing?",
+      "options": ["Washing clothes eco-friendly", "Fake environmental claims by companies", "Cleaning with green products"],
+      "correctAnswer": 1,
+      "explanation": "Companies pretend to be eco-friendly for marketing."
+    },
+    {
+      "id": 63,
+      "difficulty": "medium",
+      "question": "How long does a plastic bag take to decompose?",
+      "options": ["1 year", "10 years", "Up to 1000 years"],
+      "correctAnswer": 2,
+      "explanation": "Plastic persists in the environment for centuries."
+    },
+    {
+      "id": 64,
+      "difficulty": "medium",
+      "question": "What is carbon offsetting?",
+      "options": ["Reducing emissions", "Compensating emissions by funding green projects", "Burning carbon"],
+      "correctAnswer": 1,
+      "explanation": "Balance emissions by supporting environmental initiatives."
+    },
+    {
+      "id": 65,
+      "difficulty": "medium",
+      "question": "Why is fast fashion harmful?",
+      "options": ["It's too colorful", "High waste and pollution from mass production", "It's expensive"],
+      "correctAnswer": 1,
+      "explanation": "Creates tons of waste and uses toxic chemicals."
+    },
+    {
+      "id": 66,
+      "difficulty": "medium",
+      "question": "What is the circular economy?",
+      "options": ["Making round products", "Reusing and recycling to minimize waste", "Circular transportation"],
+      "correctAnswer": 1,
+      "explanation": "Products are designed to be reused indefinitely."
+    },
+    {
+      "id": 67,
+      "difficulty": "medium",
+      "question": "Which uses more water: a bath or a 5-minute shower?",
+      "options": ["Bath", "Shower", "Same amount"],
+      "correctAnswer": 0,
+      "explanation": "Baths typically use 70+ liters vs 35-50 for showers."
+    },
+    {
+      "id": 68,
+      "difficulty": "medium",
+      "question": "What is phantom energy?",
+      "options": ["Ghost power", "Energy used by devices on standby", "Solar energy at night"],
+      "correctAnswer": 1,
+      "explanation": "Devices consume power even when not in active use."
+    },
+    {
+      "id": 69,
+      "difficulty": "medium",
+      "question": "How much CO₂ does streaming video for 1 hour produce?",
+      "options": ["None", "About 55g (like driving 200m)", "1 ton"],
+      "correctAnswer": 1,
+      "explanation": "Data transfer requires energy from servers."
+    },
+    {
+      "id": 70,
+      "difficulty": "medium",
+      "question": "What is upcycling?",
+      "options": ["Throwing things away", "Creating higher-value products from waste", "Riding uphill"],
+      "correctAnswer": 1,
+      "explanation": "Transforms waste into better quality products."
+    },
+    {
+      "id": 71,
+      "difficulty": "medium",
+      "question": "Why are electric vehicles greener?",
+      "options": ["They're silent", "No direct emissions while driving", "They're faster"],
+      "correctAnswer": 1,
+      "explanation": "Zero tailpipe emissions, especially if charged with renewable energy."
+    },
+    {
+      "id": 72,
+      "difficulty": "medium",
+      "question": "What is planned obsolescence?",
+      "options": ["Planning to recycle", "Designing products to break quickly", "Future technology"],
+      "correctAnswer": 1,
+      "explanation": "Products are made to fail to drive more sales."
+    },
+    {
+      "id": 73,
+      "difficulty": "medium",
+      "question": "How many times can paper be recycled?",
+      "options": ["Once", "5-7 times", "Infinitely"],
+      "correctAnswer": 1,
+      "explanation": "Paper fibers shorten with each recycling."
+    },
+    {
+      "id": 74,
+      "difficulty": "medium",
+      "question": "What is the Paris Agreement about?",
+      "options": ["Tourism in France", "Global climate change action", "European trade"],
+      "correctAnswer": 1,
+      "explanation": "International treaty to limit global warming."
+    },
+    {
+      "id": 75,
+      "difficulty": "medium",
+      "question": "Why is local food better for the environment?",
+      "options": ["It tastes better", "Less transport emissions", "It's cheaper"],
+      "correctAnswer": 1,
+      "explanation": "Reduces carbon footprint from transportation."
+    },
+    {
+      "id": 76,
+      "difficulty": "hard",
+      "question": "What is the Jevons Paradox?",
+      "options": ["Efficiency increases can lead to more consumption", "Recycling creates waste", "Solar panels need sun"],
+      "correctAnswer": 0,
+      "explanation": "Better efficiency may increase overall resource use."
+    },
+    {
+      "id": 77,
+      "difficulty": "hard",
+      "question": "How much energy does Bitcoin mining consume yearly?",
+      "options": ["Same as a city", "Same as a small country", "Negligible"],
+      "correctAnswer": 1,
+      "explanation": "Comparable to countries like Argentina or Norway."
+    },
+    {
+      "id": 78,
+      "difficulty": "hard",
+      "question": "What is embodied carbon?",
+      "options": ["CO₂ in the atmosphere", "Total emissions from producing a product", "Carbon in trees"],
+      "correctAnswer": 1,
+      "explanation": "All emissions from extraction, manufacturing, transport."
+    },
+    {
+      "id": 79,
+      "difficulty": "hard",
+      "question": "What percentage of global emissions comes from IT sector?",
+      "options": ["1%", "4%", "15%"],
+      "correctAnswer": 1,
+      "explanation": "Digital technology contributes about 4% of global CO₂."
+    },
+    {
+      "id": 80,
+      "difficulty": "hard",
+      "question": "What is the rebound effect in sustainability?",
+      "options": ["Bouncing back from disaster", "Efficiency gains offset by increased consumption", "Recycling errors"],
+      "correctAnswer": 1,
+      "explanation": "Savings from efficiency lead to more use overall."
+    },
+    {
+      "id": 81,
+      "difficulty": "hard",
+      "question": "How much water is needed to make one smartphone?",
+      "options": ["10 liters", "100 liters", "13,000+ liters"],
+      "correctAnswer": 2,
+      "explanation": "Mining and manufacturing require massive water use."
+    },
+    {
+      "id": 82,
+      "difficulty": "hard",
+      "question": "What is carbon sequestration?",
+      "options": ["Releasing CO₂", "Capturing and storing CO₂", "Measuring carbon"],
+      "correctAnswer": 1,
+      "explanation": "Removing CO₂ from atmosphere and storing it."
+    },
+    {
+      "id": 83,
+      "difficulty": "hard",
+      "question": "Why is server location important for green IT?",
+      "options": ["Better internet speed", "Climate affects cooling costs and energy source", "Legal reasons"],
+      "correctAnswer": 1,
+      "explanation": "Cool climates reduce cooling needs; local energy mix matters."
+    },
+    {
+      "id": 84,
+      "difficulty": "hard",
+      "question": "What is the Right to Repair movement?",
+      "options": ["Free repairs", "Laws requiring products be repairable", "DIY culture"],
+      "correctAnswer": 1,
+      "explanation": "Fighting planned obsolescence through legislation."
+    },
+    {
+      "id": 85,
+      "difficulty": "hard",
+      "question": "How much CO₂ does one email with attachment produce?",
+      "options": ["0g", "4g", "50g"],
+      "correctAnswer": 2,
+      "explanation": "Large attachments require significant server processing."
+    },
+    {
+      "id": 86,
+      "difficulty": "hard",
+      "question": "What is edge computing's environmental benefit?",
+      "options": ["Uses more servers", "Processes data closer to source, reducing transfer", "Looks better"],
+      "correctAnswer": 1,
+      "explanation": "Less data travel = less energy consumption."
+    },
+    {
+      "id": 87,
+      "difficulty": "hard",
+      "question": "Why is AI training environmentally costly?",
+      "options": ["It's not", "Requires massive computational power", "Uses paper"],
+      "correctAnswer": 1,
+      "explanation": "Training large models can emit tons of CO₂."
+    },
+    {
+      "id": 88,
+      "difficulty": "hard",
+      "question": "What is the water footprint of data centers?",
+      "options": ["None", "Millions of liters for cooling", "Only in toilets"],
+      "correctAnswer": 1,
+      "explanation": "Cooling systems consume vast amounts of water."
+    },
+    {
+      "id": 89,
+      "difficulty": "hard",
+      "question": "What is life cycle assessment (LCA)?",
+      "options": ["Age of a product", "Analysis of environmental impact from creation to disposal", "Product warranty"],
+      "correctAnswer": 1,
+      "explanation": "Evaluates total environmental impact of a product."
+    },
+    {
+      "id": 90,
+      "difficulty": "hard",
+      "question": "Why is 5G controversial environmentally?",
+      "options": ["It's green", "More infrastructure and energy needed", "It's too fast"],
+      "correctAnswer": 1,
+      "explanation": "Requires denser network of power-hungry equipment."
+    },
+    {
+      "id": 91,
+      "difficulty": "easy",
+      "question": "What does sustainable mean?",
+      "options": ["Using everything quickly", "Can be maintained without harming future", "Very expensive"],
+      "correctAnswer": 1,
+      "explanation": "Meeting present needs without compromising the future."
+    },
+    {
+      "id": 92,
+      "difficulty": "easy",
+      "question": "Which produces less CO₂: tap water or bottled water?",
+      "options": ["Tap water", "Bottled water", "Same"],
+      "correctAnswer": 0,
+      "explanation": "Bottled water requires manufacturing and transportation."
+    },
+    {
+      "id": 93,
+      "difficulty": "medium",
+      "question": "What is a heat island effect?",
+      "options": ["Tropical islands", "Cities being hotter than surrounding areas", "Volcano activity"],
+      "correctAnswer": 1,
+      "explanation": "Urban areas absorb and retain more heat."
+    },
+    {
+      "id": 94,
+      "difficulty": "medium",
+      "question": "Why are reusable bags better than disposable ones?",
+      "options": ["They're prettier", "Reduce plastic waste and resource use", "They're bigger"],
+      "correctAnswer": 1,
+      "explanation": "One reusable bag replaces thousands of disposable ones."
+    },
+    {
+      "id": 95,
+      "difficulty": "hard",
+      "question": "What is scope 3 emissions?",
+      "options": ["Direct emissions", "Indirect emissions from value chain", "Employee commuting only"],
+      "correctAnswer": 1,
+      "explanation": "All indirect emissions not owned or controlled by company."
+    },
+    {
+      "id": 96,
+      "difficulty": "medium",
+      "question": "How does composting help the environment?",
+      "options": ["Makes soil smell bad", "Reduces landfill methane and enriches soil", "Attracts insects"],
+      "correctAnswer": 1,
+      "explanation": "Organic waste in landfills produces methane, a greenhouse gas."
+    },
+    {
+      "id": 97,
+      "difficulty": "hard",
+      "question": "What is the tragedy of the commons?",
+      "options": ["Public theater problems", "Overuse of shared resources", "Common mistakes"],
+      "correctAnswer": 1,
+      "explanation": "Individuals overusing shared resources depletes them."
+    },
+    {
+      "id": 98,
+      "difficulty": "medium",
+      "question": "Why is LED better than incandescent bulbs?",
+      "options": ["Prettier light", "Uses 75% less energy and lasts longer", "More expensive"],
+      "correctAnswer": 1,
+      "explanation": "LEDs are far more energy efficient."
+    },
+    {
+      "id": 99,
+      "difficulty": "hard",
+      "question": "What is digital sobriety?",
+      "options": ["Not drinking while coding", "Conscious reduction of digital consumption", "Avoiding social media"],
+      "correctAnswer": 1,
+      "explanation": "Minimizing digital use to reduce environmental impact."
+    },
+    {
+      "id": 100,
+      "difficulty": "hard",
+      "question": "How much e-waste is produced globally per year?",
+      "options": ["1 million tons", "10 million tons", "50+ million tons"],
+      "correctAnswer": 2,
+      "explanation": "Over 50 million tons of electronic waste annually."
+    }
+  ]
+}
