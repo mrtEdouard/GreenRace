@@ -266,6 +266,96 @@ function nextTurn() {
   gameState.lastActivityAt = Date.now();
 }
 
+/**
+ * Vérifie et applique les cases luck pour plusieurs joueurs (après une carte)
+ * @param {Array} affectedSlots - Tableau des slots des joueurs affectés
+ * @param {number} delay - Délai avant de vérifier
+ */
+function handleMultiplePlayersLuck(affectedSlots, delay = 3000) {
+  setTimeout(() => {
+    let luckEventsToProcess = [];
+    
+    // Vérifier tous les joueurs affectés pour des cases luck
+    affectedSlots.forEach(slot => {
+      const player = getPlayerBySlot(slot);
+      if (!player) return;
+      
+      const cellType = getCellType(player.position);
+      
+      if (cellType === 'goodluck' || cellType === 'badluck') {
+        luckEventsToProcess.push({ player, cellType });
+      }
+    });
+    
+    // Appliquer tous les événements de luck
+    if (luckEventsToProcess.length > 0) {
+      luckEventsToProcess.forEach(({ player, cellType }) => {
+        if (cellType === 'goodluck') {
+          const luckEvent = getGoodLuckEvent();
+          const oldPosition = player.position;
+          player.position = Math.min(player.position + luckEvent.value, TOTAL_CELLS);
+          const actualMovement = player.position - oldPosition;
+          
+          player.stats.goodLuckHits++;
+          player.stats.totalMovement += actualMovement;
+          
+          io.emit("luckEvent", {
+            slot: player.slot,
+            type: 'good',
+            event: luckEvent,
+            oldPosition: oldPosition,
+            newPosition: player.position,
+            actualMovement: actualMovement
+          });
+          
+          // Check win
+          if (player.position > TOTAL_CELLS) {
+            setTimeout(() => {
+              io.emit("gameWon", {
+                winner: {
+                  slot: player.slot,
+                  username: player.username,
+                  avatar: player.avatar,
+                },
+              });
+              endGame('won');
+            }, 2000);
+          }
+        } else if (cellType === 'badluck') {
+          const luckEvent = getBadLuckEvent();
+          const oldPosition = player.position;
+          player.position = Math.max(player.position - luckEvent.value, 0);
+          const actualMovement = player.position - oldPosition;
+          
+          player.stats.badLuckHits++;
+          player.stats.totalMovement += actualMovement;
+          
+          io.emit("luckEvent", {
+            slot: player.slot,
+            type: 'bad',
+            event: luckEvent,
+            oldPosition: oldPosition,
+            newPosition: player.position,
+            actualMovement: actualMovement
+          });
+        }
+      });
+      
+      broadcastGameState();
+      
+      // Passer au tour suivant après tous les événements
+      setTimeout(() => {
+        nextTurn();
+        broadcastGameState();
+      }, 3000);
+    } else {
+      // Pas de luck, passer directement au tour suivant
+      nextTurn();
+      broadcastGameState();
+    }
+  }, delay);
+}
+
 function endGame(reason = 'won') {
   if (!gameState.active) return;
   
@@ -963,11 +1053,16 @@ io.on("connection", (socket) => {
     const { movements } = data;
     // movements = array of { slot: X, movement: +/-N }
     
+    const affectedSlots = [];
+    
     movements.forEach(mov => {
       const targetPlayer = getPlayerBySlot(mov.slot);
       if (targetPlayer) {
         const oldPos = targetPlayer.position;
         targetPlayer.position = Math.max(0, Math.min(targetPlayer.position + mov.movement, TOTAL_CELLS));
+        
+        // Track affected players for luck check
+        affectedSlots.push(mov.slot);
         
         // Check win (must be > 45, not >= 45)
         if (targetPlayer.position > TOTAL_CELLS) {
@@ -996,9 +1091,8 @@ io.on("connection", (socket) => {
     gameState.cardInProgress = null;
     
     if (gameState.active) {
-      // Après une carte, vérifier si on tombe sur une case luck (mais PAS déclencher question/card)
-      // fromDiceRoll = false pour ne pas déclencher les cases question/card
-      handleSpecialCell(player, 3000, false);
+      // Après une carte, vérifier si TOUS les joueurs affectés tombent sur une case luck
+      handleMultiplePlayersLuck(affectedSlots, 3000);
     }
   });
 
