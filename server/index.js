@@ -332,11 +332,17 @@ function broadcastGameState() {
   io.emit("gameStateUpdate", payload);
 }
 
-// Fonction récursive pour gérer les cases spéciales en chaîne
-function handleSpecialCell(player, delayBeforeCheck = 0) {
+/**
+ * Gère les cases spéciales après un mouvement
+ * @param {Object} player - Le joueur
+ * @param {number} delayBeforeCheck - Délai avant de vérifier la case
+ * @param {boolean} fromDiceRoll - True si c'est suite à un lancer de dé (déclenche tout), false sinon (applique uniquement luck)
+ */
+function handleSpecialCell(player, delayBeforeCheck = 0, fromDiceRoll = true) {
   setTimeout(() => {
     const cellType = getCellType(player.position);
     
+    // Cases de chance/malchance : toujours appliquer le bonus/malus
     if (cellType === 'goodluck') {
       gameState.phase = 'goodluck';
       const luckEvent = getGoodLuckEvent();
@@ -357,7 +363,7 @@ function handleSpecialCell(player, delayBeforeCheck = 0) {
         actualMovement: actualMovement
       });
       
-      if (player.position >= TOTAL_CELLS) {
+      if (player.position > TOTAL_CELLS) {
         setTimeout(() => {
           io.emit("gameWon", {
             winner: {
@@ -373,8 +379,11 @@ function handleSpecialCell(player, delayBeforeCheck = 0) {
       
       broadcastGameState();
       
-      // Vérifier si la nouvelle position est aussi une case spéciale (cumul)
-      handleSpecialCell(player, 3000);
+      // Après un bonus, on passe simplement au tour suivant (pas de cascade)
+      setTimeout(() => {
+        nextTurn();
+        broadcastGameState();
+      }, 3000);
       
     } else if (cellType === 'badluck') {
       gameState.phase = 'badluck';
@@ -398,10 +407,14 @@ function handleSpecialCell(player, delayBeforeCheck = 0) {
       
       broadcastGameState();
       
-      // Vérifier si la nouvelle position est aussi une case spéciale (cumul)
-      handleSpecialCell(player, 3000);
+      // Après un malus, on passe simplement au tour suivant (pas de cascade)
+      setTimeout(() => {
+        nextTurn();
+        broadcastGameState();
+      }, 3000);
       
-    } else if (cellType === 'card') {
+    } else if (cellType === 'card' && fromDiceRoll) {
+      // Cases carte : déclencher SEULEMENT si arrivée par lancer de dé
       gameState.phase = 'card';
       gameState.cardInProgress = {
         playerSlot: player.slot
@@ -414,7 +427,8 @@ function handleSpecialCell(player, delayBeforeCheck = 0) {
         playerName: player.username
       });
       
-    } else if (cellType === 'question') {
+    } else if (cellType === 'question' && fromDiceRoll) {
+      // Cases question : déclencher SEULEMENT si arrivée par lancer de dé
       gameState.phase = 'question';
       
       const questions = getRandomQuestions(5);
@@ -445,7 +459,7 @@ function handleSpecialCell(player, delayBeforeCheck = 0) {
       });
       
     } else {
-      // Case normale - passer au tour suivant
+      // Case normale OU case spéciale mais pas depuis un lancer de dé - passer au tour suivant
       gameState.phase = 'waiting';
       broadcastGameState();
       
@@ -812,8 +826,8 @@ io.on("connection", (socket) => {
     // Broadcast immediate position update
     broadcastGameState();
     
-    // Check for win condition
-    if (player.position >= TOTAL_CELLS) {
+    // Check for win condition (must be > 45, not >= 45)
+    if (player.position > TOTAL_CELLS) {
       io.emit("gameWon", {
         winner: {
           slot: player.slot,
@@ -913,8 +927,8 @@ io.on("connection", (socket) => {
         });
       });
       
-      // Check win condition
-      if (player.position >= TOTAL_CELLS) {
+      // Check win condition (must be > 45, not >= 45)
+      if (player.position > TOTAL_CELLS) {
         // Délai avant d'afficher la victoire
         setTimeout(() => {
           io.emit("gameWon", {
@@ -932,18 +946,9 @@ io.on("connection", (socket) => {
       // Clear session
       gameState.questionSession = null;
       
-      // Vérifier si la nouvelle position est une case spéciale (cumul possible)
-      const newCellType = getCellType(player.position);
-      if (newCellType !== 'normal') {
-        // Case spéciale - utiliser handleSpecialCell
-        handleSpecialCell(player, 3000);
-      } else {
-        // Case normale - passer au tour suivant
-        setTimeout(() => {
-          nextTurn();
-          broadcastGameState();
-        }, 3000);
-      }
+      // Après les questions, vérifier si on tombe sur une case luck (mais PAS déclencher question/card)
+      // fromDiceRoll = false pour ne pas déclencher les cases question/card
+      handleSpecialCell(player, 3000, false);
     }
   });
   
@@ -964,8 +969,8 @@ io.on("connection", (socket) => {
         const oldPos = targetPlayer.position;
         targetPlayer.position = Math.max(0, Math.min(targetPlayer.position + mov.movement, TOTAL_CELLS));
         
-        // Check win
-        if (targetPlayer.position >= TOTAL_CELLS) {
+        // Check win (must be > 45, not >= 45)
+        if (targetPlayer.position > TOTAL_CELLS) {
           gameState.active = false;
           io.emit("gameWon", {
             winner: {
@@ -974,6 +979,7 @@ io.on("connection", (socket) => {
               avatar: targetPlayer.avatar,
             },
           });
+          endGame('won');
         }
       }
     });
@@ -990,10 +996,9 @@ io.on("connection", (socket) => {
     gameState.cardInProgress = null;
     
     if (gameState.active) {
-      setTimeout(() => {
-        nextTurn();
-        broadcastGameState();
-      }, 2000);
+      // Après une carte, vérifier si on tombe sur une case luck (mais PAS déclencher question/card)
+      // fromDiceRoll = false pour ne pas déclencher les cases question/card
+      handleSpecialCell(player, 3000, false);
     }
   });
 
