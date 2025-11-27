@@ -213,14 +213,14 @@
           <!-- Card Type Selection -->
           <div id="cardTypePhase" class="phase-content hidden">
             <div class="card-modal">
-              <h3>🎴 Pick a card...</h3>
-              <p class="card-subtitle">Is it a Quiz or Game card?</p>
+              <h3>🎴 Card Cell!</h3>
+              <p class="card-subtitle">Choose your card type:</p>
               <div class="card-buttons">
                 <button
                   onclick="selectCardType('quiz')"
                   class="card-button quiz-btn"
                 >
-                  ❓ Quiz Card
+                  ❓ Question Card
                 </button>
                 <button
                   onclick="selectCardType('game')"
@@ -235,17 +235,18 @@
           <!-- Quiz Card Input -->
           <div id="cardQuizPhase" class="phase-content hidden">
             <div class="card-modal">
-              <h3>❓ Quiz Card</h3>
-              <p class="card-subtitle">You asked a player...</p>
+              <h3>❓ Question Card</h3>
+              <p class="card-subtitle">Challenge a player with a question!</p>
 
               <label class="card-label">
-                Enter player number:
+                Who do you challenge?
                 <input
                   type="number"
                   id="quizTargetPlayer"
                   min="1"
                   max="4"
                   class="card-input"
+                  placeholder="Player number"
                 />
               </label>
 
@@ -267,12 +268,12 @@
                     id="quizWrong"
                     value="no"
                   />
-                  ❌ No
+                  ❌ No (+1 for you, -1 for them)
                 </label>
               </div>
 
               <button onclick="submitQuizCard()" class="primary-button">
-                Submit
+                Submit Result
               </button>
             </div>
           </div>
