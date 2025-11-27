@@ -719,10 +719,11 @@ socket.on("gameStateUpdate", (state) => {
   console.log("  - Dice animation playing:", isDiceAnimationPlaying);
   console.log("  - Special message displaying:", isSpecialCellMessageDisplaying);
   
-  // If turn changed and phase is 'rolling', unlock special message display
+  // If turn changed and phase is 'rolling', unlock everything for new turn
   if (state.currentTurn !== currentGameTurn && state.phase === 'rolling') {
-    console.log("  → Turn changed, unlocking special message display");
+    console.log("  → Turn changed, unlocking all flags for new turn");
     isSpecialCellMessageDisplaying = false;
+    isDiceAnimationPlaying = false; // Reset dice animation flag for new turn
   }
   
   gameActive = state.active;
