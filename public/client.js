@@ -568,6 +568,7 @@ let gameActive = false;
 let currentGameTurn = null;
 let currentGamePhase = null;
 let gamePlayers = [];
+let isDiceAnimationPlaying = false; // Flag to prevent phase changes during animation
 
 // Game DOM elements
 const turnText = document.getElementById("turnText");
@@ -608,14 +609,17 @@ socket.on("gameStateUpdate", (state) => {
   currentGamePhase = state.phase;
   gamePlayers = state.players;
 
-  // Forcer la mise à jour de l'UI
-  if (gameActive) {
+  // Forcer la mise à jour de l'UI seulement si l'animation du dé n'est pas en cours
+  if (gameActive && !isDiceAnimationPlaying) {
     updateGameUI();
   }
 });
 
 socket.on("diceRolled", (data) => {
   const { slot, result, newPosition } = data;
+  
+  // Block phase changes during dice animation
+  isDiceAnimationPlaying = true;
   
   // Update local player position immediately for visual feedback
   const player = gamePlayers.find(p => p.slot === slot);
@@ -626,6 +630,13 @@ socket.on("diceRolled", (data) => {
   }
   
   showDiceAnimation(data);
+  
+  // Allow phase changes after animation completes (2.5s for dice animation)
+  setTimeout(() => {
+    isDiceAnimationPlaying = false;
+    // Now update UI with the correct phase
+    updateGameUI();
+  }, 2500);
 });
 
 // Question system handlers
