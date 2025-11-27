@@ -569,6 +569,7 @@ let currentGameTurn = null;
 let currentGamePhase = null;
 let gamePlayers = [];
 let isDiceAnimationPlaying = false; // Flag to prevent phase changes during animation
+let isSpecialCellMessageDisplaying = false; // Flag to prevent phase changes during special cell messages
 
 // Game DOM elements
 const turnText = document.getElementById("turnText");
@@ -609,8 +610,8 @@ socket.on("gameStateUpdate", (state) => {
   currentGamePhase = state.phase;
   gamePlayers = state.players;
 
-  // Forcer la mise à jour de l'UI seulement si l'animation du dé n'est pas en cours
-  if (gameActive && !isDiceAnimationPlaying) {
+  // Forcer la mise à jour de l'UI seulement si l'animation du dé ou un message spécial n'est pas en cours
+  if (gameActive && !isDiceAnimationPlaying && !isSpecialCellMessageDisplaying) {
     updateGameUI();
   }
 });
@@ -665,6 +666,9 @@ socket.on("luckEvent", (data) => {
   const playerName = player ? player.username : `Player ${slot}`;
   const isMe = slot === mySlot;
   
+  // Block UI updates during message display
+  isSpecialCellMessageDisplaying = true;
+  
   // Update player position immediately
   if (player) {
     player.position = newPosition;
@@ -679,6 +683,11 @@ socket.on("luckEvent", (data) => {
     ${actualMovement !== 0 ? ` (${actualMovement > 0 ? '+' : ''}${actualMovement})` : ''}
   `;
   showPhase("waiting");
+  
+  // Allow UI updates after message has been displayed (3 seconds)
+  setTimeout(() => {
+    isSpecialCellMessageDisplaying = false;
+  }, 3000);
 });
 
 socket.on("physicalCard", (data) => {
@@ -688,14 +697,22 @@ socket.on("physicalCard", (data) => {
     // Current player picks physical card
     showCardInput();
   } else {
+    // Block UI updates during message display
+    isSpecialCellMessageDisplaying = true;
+    
     // Affichage instantané
-    waitingText.innerHTML = `🎴 <strong>${playerName}</strong> is picking a physical card...`;
+    waitingText.innerHTML = `🎴 <strong>${playerName}</strong> is picking a card...`;
     showPhase("waiting");
+    
+    // Keep message visible until card result comes
   }
 });
 
 socket.on("cardResultApplied", (data) => {
   const { movements, players: updatedPositions } = data;
+  
+  // Block UI updates during message display
+  isSpecialCellMessageDisplaying = true;
   
   // Update all affected player positions immediately
   if (updatedPositions) {
@@ -722,6 +739,7 @@ socket.on("cardResultApplied", (data) => {
   showPhase("waiting");
   
   setTimeout(() => {
+    isSpecialCellMessageDisplaying = false;
     updateGameUI();
   }, 3000);
 });
