@@ -187,7 +187,6 @@ const playerCountSpan = document.getElementById("playerCount");
 const playerGrid = document.getElementById("playerGrid");
 const startGameButton = document.getElementById("startGameButton");
 const errorMessageP = document.getElementById("errorMessage");
-const difficultySelector = document.getElementById("difficultySelector");
 const endGameButton = document.getElementById("endGameButton");
 
 // Modal
@@ -211,11 +210,6 @@ const historyList = document.getElementById("historyList");
 const historyButton = document.getElementById("historyButton");
 const closeHistoryBtn = document.getElementById("closeHistoryBtn");
 
-// Board modal
-const boardModal = document.getElementById("boardModal");
-const boardViewButton = document.getElementById("boardViewButton");
-const closeBoardModalButton = document.getElementById("closeBoardModalButton");
-const boardGrid = document.getElementById("boardGrid");
 
 // RGPD modal
 const rgpdModal = document.getElementById("rgpdModal");
@@ -348,7 +342,6 @@ socket.on("spectatorMode", (data) => {
   
   // Cacher les boutons de contrôle
   endGameButton.classList.add('hidden');
-  boardViewButton.classList.add('hidden');
 });
 
 // Retour au lobby (déclenché par le serveur)
@@ -377,9 +370,8 @@ socket.on("returnToLobby", () => {
   waitingRoomSection.classList.remove("hidden");
   preLobbySection.classList.add("hidden");
   
-  // Cacher les boutons End Game et View Board
+  // Cacher les boutons End Game
   endGameButton.classList.add('hidden');
-  boardViewButton.classList.add('hidden');
   
   console.log('UI switched to waiting room');
   
@@ -450,10 +442,7 @@ openAvatarModalButton.addEventListener("click", () => {
 
 // Start game
 startGameButton.addEventListener("click", () => {
-  // Récupérer la difficulté sélectionnée
-  const selectedDifficulty = document.querySelector('input[name="difficulty"]:checked').value;
-  
-  socket.emit("startGame", { difficulty: selectedDifficulty });
+  socket.emit("startGame", { difficulty: 'mixed' });
 });
 
 // Modal close button
@@ -535,13 +524,6 @@ function updateStartButtonState() {
   const isPlayerOne = mySlot === 1;
   const enoughPlayers = playerCount >= 2;
   startGameButton.disabled = !(isPlayerOne && enoughPlayers);
-  
-  // Afficher le sélecteur de difficulté uniquement pour le joueur 1
-  if (isPlayerOne) {
-    difficultySelector.classList.remove("hidden");
-  } else {
-    difficultySelector.classList.add("hidden");
-  }
 }
 
 function updateCurrentAvatarLabel() {
@@ -635,9 +617,6 @@ socket.on("gameStarted", (data) => {
   if (mySlot === 1) {
     endGameButton.classList.remove("hidden");
   }
-  
-  // Afficher le bouton "View Board" pour tous les joueurs
-  boardViewButton.classList.remove("hidden");
   
   startHeartbeat();
   
@@ -1143,9 +1122,8 @@ socket.on('gameEnded', (gameSummary) => {
   currentGameSummary = gameSummary;
   gameActive = false;
   
-  // Cacher les boutons End Game et View Board
+  // Cacher les boutons End Game
   endGameButton.classList.add('hidden');
-  boardViewButton.classList.add('hidden');
   
   // Arrêter le heartbeat
   stopHeartbeat();
@@ -1266,23 +1244,6 @@ rgpdModal.addEventListener('click', (event) => {
   }
 });
 
-// Board view button
-boardViewButton.addEventListener('click', () => {
-  renderBoardModal();
-  boardModal.classList.remove('hidden');
-});
-
-// Close board modal
-closeBoardModalButton.addEventListener('click', () => {
-  boardModal.classList.add('hidden');
-});
-
-// Close board modal on backdrop click
-boardModal.addEventListener('click', (event) => {
-  if (event.target.classList.contains('modal-backdrop')) {
-    boardModal.classList.add('hidden');
-  }
-});
 
 // Receive game history
 socket.on('gameHistory', (history) => {
@@ -1336,84 +1297,6 @@ socket.on('gameHistory', (history) => {
 // =====================================
 // GAME FUNCTIONS CONTINUED
 // =====================================
-
-// Cell type configuration (same as server)
-const QUESTION_CELLS = [5, 9, 12, 16, 19, 23, 26, 30, 33, 37, 40, 44];  // 12 cells
-const BAD_LUCK_CELLS = [3, 10, 17, 24, 31, 38];
-const GOOD_LUCK_CELLS = [7, 14, 21, 28, 35, 42];
-const TOTAL_CELLS = 45;
-
-function getCellType(position) {
-  if (QUESTION_CELLS.includes(position)) return 'question';
-  if (BAD_LUCK_CELLS.includes(position)) return 'badluck';
-  if (GOOD_LUCK_CELLS.includes(position)) return 'goodluck';
-  return 'normal';
-}
-
-function renderBoardModal() {
-  // Get current player positions from the game state
-  const playerPositions = document.querySelectorAll('.position-card');
-  const positions = {};
-  
-  playerPositions.forEach(card => {
-    const playerNum = card.querySelector('.position-player-number')?.textContent.match(/\d+/)?.[0];
-    const posValue = card.querySelector('.position-value')?.textContent.match(/\d+/)?.[0];
-    if (playerNum && posValue) {
-      positions[playerNum] = parseInt(posValue);
-    }
-  });
-  
-  boardGrid.innerHTML = '';
-  
-  // Create cells 0-45
-  for (let i = 0; i <= TOTAL_CELLS; i++) {
-    const cell = document.createElement('div');
-    cell.className = 'board-cell';
-    
-    // Determine cell type
-    const cellType = getCellType(i);
-    if (cellType !== 'normal') {
-      cell.classList.add(cellType);
-    }
-    
-    // Special styling for finish line (> 45)
-    if (i > 45) {
-      cell.classList.add('finish');
-    }
-    
-    // Cell number
-    const cellNumber = document.createElement('div');
-    cellNumber.className = 'board-cell-number';
-    cellNumber.textContent = i;
-    cell.appendChild(cellNumber);
-    
-    // Cell type icon
-    const cellTypeIcon = document.createElement('div');
-    cellTypeIcon.className = 'board-cell-type';
-    if (cellType === 'question') cellTypeIcon.textContent = '❓';
-    else if (cellType === 'goodluck') cellTypeIcon.textContent = '🍀';
-    else if (cellType === 'badluck') cellTypeIcon.textContent = '⚠️';
-    else if (i === 0) cellTypeIcon.textContent = '🚀';
-    else if (i > 45) cellTypeIcon.textContent = '🏁';
-    cell.appendChild(cellTypeIcon);
-    
-    // Players on this cell
-    const playersDiv = document.createElement('div');
-    playersDiv.className = 'board-cell-players';
-    
-    Object.keys(positions).forEach(playerNum => {
-      if (positions[playerNum] === i) {
-        const marker = document.createElement('div');
-        marker.className = `board-player-marker slot-${playerNum}`;
-        marker.textContent = playerNum;
-        playersDiv.appendChild(marker);
-      }
-    });
-    
-    cell.appendChild(playersDiv);
-    boardGrid.appendChild(cell);
-  }
-}
 
 // Nouvelle fonction pour choisir la difficulté
 function chooseDifficulty(difficulty) {
