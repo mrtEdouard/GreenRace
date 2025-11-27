@@ -39,6 +39,99 @@ const avatarMeta = {
 // Socket connection
 const socket = io();
 
+// =====================
+// AUDIO SYSTEM
+// =====================
+const audioContext = {
+  backgroundMusic: null,
+  isMusicPlaying: false,
+  isSoundEnabled: true,
+  musicVolume: 0.3,
+  soundVolume: 0.5
+};
+
+// Initialize audio (with placeholder sounds using Web Audio API)
+function initAudio() {
+  // Background music (placeholder - add your own music file)
+  audioContext.backgroundMusic = new Audio();
+  audioContext.backgroundMusic.loop = true;
+  audioContext.backgroundMusic.volume = audioContext.musicVolume;
+  // audioContext.backgroundMusic.src = 'sounds/background-music.mp3'; // Add your music file
+}
+
+// Play sound effect
+function playSound(type) {
+  if (!audioContext.isSoundEnabled) return;
+  
+  // Create simple beep sounds using Web Audio API as placeholder
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const oscillator = audioCtx.createOscillator();
+  const gainNode = audioCtx.createGain();
+  
+  oscillator.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+  
+  gainNode.gain.value = audioContext.soundVolume;
+  
+  switch(type) {
+    case 'dice':
+      oscillator.frequency.value = 400;
+      oscillator.start();
+      oscillator.stop(audioCtx.currentTime + 0.1);
+      break;
+    case 'goodluck':
+      oscillator.frequency.value = 600;
+      oscillator.start();
+      oscillator.stop(audioCtx.currentTime + 0.2);
+      break;
+    case 'badluck':
+      oscillator.frequency.value = 200;
+      oscillator.start();
+      oscillator.stop(audioCtx.currentTime + 0.3);
+      break;
+    case 'question':
+      oscillator.frequency.value = 500;
+      oscillator.start();
+      oscillator.stop(audioCtx.currentTime + 0.15);
+      break;
+    case 'correct':
+      oscillator.frequency.value = 700;
+      oscillator.start();
+      oscillator.stop(audioCtx.currentTime + 0.2);
+      break;
+    case 'wrong':
+      oscillator.frequency.value = 150;
+      oscillator.start();
+      oscillator.stop(audioCtx.currentTime + 0.4);
+      break;
+    case 'victory':
+      // Victory fanfare
+      oscillator.frequency.value = 800;
+      oscillator.start();
+      oscillator.stop(audioCtx.currentTime + 0.5);
+      break;
+  }
+}
+
+function toggleMusic() {
+  if (!audioContext.backgroundMusic.src) return;
+  
+  if (audioContext.isMusicPlaying) {
+    audioContext.backgroundMusic.pause();
+    audioContext.isMusicPlaying = false;
+  } else {
+    audioContext.backgroundMusic.play().catch(e => console.log('Music play failed:', e));
+    audioContext.isMusicPlaying = true;
+  }
+}
+
+function toggleSound() {
+  audioContext.isSoundEnabled = !audioContext.isSoundEnabled;
+}
+
+// Initialize audio on page load
+initAudio();
+
 // ---------------------
 // Local state
 // ---------------------
@@ -580,6 +673,7 @@ const rollingPhase = document.getElementById("rollingPhase");
 const rollDiceButton = document.getElementById("rollDiceButton");
 const diceAnimation = document.getElementById("diceAnimation");
 const diceResult = document.getElementById("diceResult");
+const confirmMoveButton = document.getElementById("confirmMoveButton");
 
 const waitingPhase = document.getElementById("waitingPhase");
 const waitingText = document.getElementById("waitingText");
@@ -598,8 +692,18 @@ const questionScore = document.getElementById("questionScore");
 // Game event listeners
 rollDiceButton.addEventListener("click", () => {
   if (isSpectator) return; // Bloquer les spectateurs
+  playSound('dice'); // Play dice sound
   socket.emit("rollDice");
   rollDiceButton.disabled = true;
+});
+
+// Confirm move button
+confirmMoveButton.addEventListener("click", () => {
+  if (isSpectator) return;
+  confirmMoveButton.classList.add("hidden");
+  // Continue game after physical move
+  isDiceAnimationPlaying = false;
+  updateGameUI();
 });
 
 // Game socket handlers
@@ -643,18 +747,15 @@ socket.on("diceRolled", (data) => {
   
   showDiceAnimation(data);
   
-  // Allow phase changes after animation completes (2.5s for dice animation)
-  setTimeout(() => {
-    isDiceAnimationPlaying = false;
-    // Now update UI with the correct phase
-    updateGameUI();
-  }, 2500);
+  // Don't automatically continue - wait for player to confirm move
+  // isDiceAnimationPlaying will be set to false when confirmMoveButton is clicked
 });
 
 // Question system handlers
 let currentQuestionData = null;
 
 socket.on("questionStart", (data) => {
+  playSound('question'); // Play question sound
   currentQuestionData = data;
   displayQuestion(data);
 });
@@ -676,6 +777,9 @@ socket.on("luckEvent", (data) => {
   const player = gamePlayers.find(p => p.slot === slot);
   const playerName = player ? player.username : `Player ${slot}`;
   const isMe = slot === mySlot;
+  
+  // Play sound
+  playSound(type === 'good' ? 'goodluck' : 'badluck');
   
   // Block UI updates during message display
   isSpecialCellMessageDisplaying = true;
@@ -759,6 +863,10 @@ socket.on("cardResultApplied", (data) => {
 socket.on("gameWon", (data) => {
   const { winner } = data;
   const isMe = winner.slot === mySlot;
+  
+  // Play victory sound
+  playSound('victory');
+  
   const message = isMe 
     ? `🎉 <strong>You won the game!</strong> 🎉`
     : `🎉 <strong>${winner.username}</strong> won the game! 🎉`;
@@ -963,6 +1071,7 @@ function showDiceAnimation(data) {
   const playerName = player ? player.username : `Player ${slot}`;
   
   diceResult.textContent = "";
+  confirmMoveButton.classList.add("hidden");
   showPhase("dice");
 
   setTimeout(() => {
@@ -971,6 +1080,13 @@ function showDiceAnimation(data) {
       : `${playerName} rolled a ${result}!`;
     
     diceResult.textContent = message;
+    
+    // Show confirm button for current player after 1.5 more seconds
+    if (isMe) {
+      setTimeout(() => {
+        confirmMoveButton.classList.remove("hidden");
+      }, 1500);
+    }
   }, 1000);
 }
 
@@ -1016,6 +1132,9 @@ function selectAnswer(answerIndex) {
 
 function showQuestionResult(data) {
   const { correct, explanation, currentScore, totalAnswered } = data;
+  
+  // Play sound
+  playSound(correct ? 'correct' : 'wrong');
   
   // Update score
   questionScore.textContent = `Score: ${currentScore}/${totalAnswered}`;
