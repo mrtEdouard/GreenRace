@@ -1211,22 +1211,23 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log("Client disconnected:", socket.id);
 
-    // Si en waiting room
-    const idx = waitingRoom.findIndex((p) => p.socketId === socket.id);
-    if (idx !== -1) {
-      waitingRoom.splice(idx, 1);
-      reindexSlots();
-      broadcastWaitingRoomState();
-    }
-    
-    // Si en jeu, marquer le joueur comme déconnecté
+    // Si en jeu, marquer le joueur comme déconnecté (mais garder sa place)
     if (gameState.active) {
       const player = gameState.players.find(p => p.socketId === socket.id);
       if (player) {
-        console.log(`Player ${player.username} (slot ${player.slot}) disconnected during game`);
+        console.log(`Player ${player.username} (slot ${player.slot}) disconnected during game - keeping slot reserved`);
         player.connected = false;
         // Broadcast pour mettre à jour l'état de connexion
         broadcastGameState();
+      }
+    } else {
+      // Si en waiting room ET pas de jeu actif, retirer du waiting room
+      const idx = waitingRoom.findIndex((p) => p.socketId === socket.id);
+      if (idx !== -1) {
+        console.log(`Player removed from waiting room: ${waitingRoom[idx].username}`);
+        waitingRoom.splice(idx, 1);
+        reindexSlots();
+        broadcastWaitingRoomState();
       }
     }
   });
