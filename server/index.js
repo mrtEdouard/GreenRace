@@ -929,8 +929,20 @@ io.on("connection", (socket) => {
       return;
     }
     
-    // Utiliser la nouvelle fonction pour gérer les cases spéciales (avec cumul possible)
-    handleSpecialCell(player, 2500); // 2.5 secondes pour voir le résultat du dé
+    // Ne pas appeler handleSpecialCell automatiquement - attendre confirmMove
+  });
+  
+  // Player confirms physical move
+  socket.on("confirmMove", () => {
+    if (!gameState.active) return;
+    
+    const player = getPlayerBySocketId(socket.id);
+    if (!player || player.slot !== gameState.currentTurn) return;
+    
+    console.log(`Player ${player.username} confirmed physical move`);
+    
+    // Now handle special cell
+    handleSpecialCell(player, 0, true); // fromDiceRoll = true
   });
   
   // Answer question

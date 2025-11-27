@@ -703,7 +703,9 @@ confirmMoveButton.addEventListener("click", () => {
   confirmMoveButton.classList.add("hidden");
   // Continue game after physical move
   isDiceAnimationPlaying = false;
-  updateGameUI();
+  
+  // Notify server that player confirmed move
+  socket.emit('confirmMove');
 });
 
 // Game socket handlers
