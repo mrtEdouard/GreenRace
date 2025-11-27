@@ -89,19 +89,17 @@ let waitingRoom = [];
 // -------------------------
 
 // Cell type distribution (total 45 cells)
-const QUESTION_CELLS = [5, 12, 19, 26, 33, 40];      // 6 cells - Quiz questions (5 questions)
+const QUESTION_CELLS = [5, 9, 12, 16, 19, 23, 26, 30, 33, 37, 40, 44];  // 12 cells - Quiz questions with difficulty choice
 const BAD_LUCK_CELLS = [3, 10, 17, 24, 31, 38];      // 6 cells - Malchance (negative events only)
 const GOOD_LUCK_CELLS = [7, 14, 21, 28, 35, 42];     // 6 cells - Chance (positive events only)
-const CARD_CELLS = [9, 16, 23, 30, 37, 44];          // 6 cells - Single card question (+2/-2)
 const TOTAL_CELLS = 45;
 
 let gameState = {
   active: false,
   currentTurn: 1, // slot number
-  phase: 'rolling', // 'rolling', 'moving', 'question', 'card', 'waiting'
+  phase: 'rolling', // 'rolling', 'moving', 'question', 'waiting'
   players: [], // { slot, socketId, username, avatar, position, connected: true, lastHeartbeat: timestamp, stats: {...} }
-  questionSession: null, // { playerSlot, questions: [], answers: [], currentIndex: 0, score: 0 }
-  cardInProgress: null, // { playerSlot }
+  questionSession: null, // { playerSlot, chosenDifficulty: 'easy'|'medium'|'hard', question: {...}, answered: false }
   difficulty: 'mixed', // 'easy', 'medium', 'hard', 'easy-medium', 'medium-hard', 'easy-hard', 'mixed'
   startedAt: null, // Timestamp de début de partie
   lastActivityAt: null, // Timestamp de dernière activité
@@ -222,7 +220,6 @@ function getCellType(position) {
   if (QUESTION_CELLS.includes(position)) return 'question';
   if (BAD_LUCK_CELLS.includes(position)) return 'badluck';
   if (GOOD_LUCK_CELLS.includes(position)) return 'goodluck';
-  if (CARD_CELLS.includes(position)) return 'card';
   return 'normal';
 }
 
@@ -264,96 +261,6 @@ function nextTurn() {
   gameState.phase = 'rolling';
   gameState.totalTurns++;
   gameState.lastActivityAt = Date.now();
-}
-
-/**
- * Vérifie et applique les cases luck pour plusieurs joueurs (après une carte)
- * @param {Array} affectedSlots - Tableau des slots des joueurs affectés
- * @param {number} delay - Délai avant de vérifier
- */
-function handleMultiplePlayersLuck(affectedSlots, delay = 3000) {
-  setTimeout(() => {
-    let luckEventsToProcess = [];
-    
-    // Vérifier tous les joueurs affectés pour des cases luck
-    affectedSlots.forEach(slot => {
-      const player = getPlayerBySlot(slot);
-      if (!player) return;
-      
-      const cellType = getCellType(player.position);
-      
-      if (cellType === 'goodluck' || cellType === 'badluck') {
-        luckEventsToProcess.push({ player, cellType });
-      }
-    });
-    
-    // Appliquer tous les événements de luck
-    if (luckEventsToProcess.length > 0) {
-      luckEventsToProcess.forEach(({ player, cellType }) => {
-        if (cellType === 'goodluck') {
-          const luckEvent = getGoodLuckEvent();
-          const oldPosition = player.position;
-          player.position = player.position + luckEvent.value;
-          const actualMovement = player.position - oldPosition;
-          
-          player.stats.goodLuckHits++;
-          player.stats.totalMovement += actualMovement;
-          
-          io.emit("luckEvent", {
-            slot: player.slot,
-            type: 'good',
-            event: luckEvent,
-            oldPosition: oldPosition,
-            newPosition: player.position,
-            actualMovement: actualMovement
-          });
-          
-          // Check win
-          if (player.position > TOTAL_CELLS) {
-            setTimeout(() => {
-              io.emit("gameWon", {
-                winner: {
-                  slot: player.slot,
-                  username: player.username,
-                  avatar: player.avatar,
-                },
-              });
-              endGame('won');
-            }, 2000);
-          }
-        } else if (cellType === 'badluck') {
-          const luckEvent = getBadLuckEvent();
-          const oldPosition = player.position;
-          player.position = Math.max(player.position - luckEvent.value, 0);
-          const actualMovement = player.position - oldPosition;
-          
-          player.stats.badLuckHits++;
-          player.stats.totalMovement += actualMovement;
-          
-          io.emit("luckEvent", {
-            slot: player.slot,
-            type: 'bad',
-            event: luckEvent,
-            oldPosition: oldPosition,
-            newPosition: player.position,
-            actualMovement: actualMovement
-          });
-        }
-      });
-      
-      broadcastGameState();
-      
-      // Passer au tour suivant après tous les événements
-      setTimeout(() => {
-        nextTurn();
-        broadcastGameState();
-      }, 3000);
-    } else {
-      // Pas de luck, passer directement au tour suivant
-      nextTurn();
-      broadcastGameState();
-    }
-  }, delay);
 }
 
 function endGame(reason = 'won') {
@@ -503,49 +410,23 @@ function handleSpecialCell(player, delayBeforeCheck = 0, fromDiceRoll = true) {
         broadcastGameState();
       }, 3000);
       
-    } else if (cellType === 'card' && fromDiceRoll) {
-      // Cases carte : déclencher SEULEMENT si arrivée par lancer de dé
-      gameState.phase = 'card';
-      gameState.cardInProgress = {
-        playerSlot: player.slot
-      };
-      
-      broadcastGameState();
-      
-      io.emit("physicalCard", {
-        slot: player.slot,
-        playerName: player.username
-      });
-      
     } else if (cellType === 'question' && fromDiceRoll) {
       // Cases question : déclencher SEULEMENT si arrivée par lancer de dé
       gameState.phase = 'question';
       
-      const questions = getRandomQuestions(5);
+      // Demander au joueur de choisir la difficulté
       gameState.questionSession = {
         playerSlot: player.slot,
-        questions: questions.map(q => ({
-          id: q.id,
-          question: q.question,
-          options: q.options,
-          difficulty: q.difficulty,
-          correctAnswer: q.correctAnswer,
-          explanation: q.explanation
-        })),
-        answers: [],
-        currentIndex: 0,
-        score: 0
+        chosenDifficulty: null,
+        question: null,
+        answered: false
       };
       
       broadcastGameState();
       
-      const currentQuestion = gameState.questionSession.questions[0];
-      io.to(player.socketId).emit("questionStart", {
-        totalQuestions: 5,
-        currentIndex: 0,
-        question: currentQuestion.question,
-        options: currentQuestion.options,
-        difficulty: currentQuestion.difficulty
+      // Envoyer demande de choix de difficulté
+      io.to(player.socketId).emit("chooseDifficultyPrompt", {
+        slot: player.slot
       });
       
     } else {
@@ -561,47 +442,17 @@ function handleSpecialCell(player, delayBeforeCheck = 0, fromDiceRoll = true) {
   }, delayBeforeCheck);
 }
 
-function getRandomQuestions(count = 5) {
-  // Filtrer les questions selon la difficulté sélectionnée
-  let filteredQuestions = [];
+// Get 1 random question of specific difficulty
+function getRandomQuestion(difficulty) {
+  const filteredQuestions = questionsDB.questions.filter(q => q.difficulty === difficulty);
   
-  switch (gameState.difficulty) {
-    case 'easy':
-      filteredQuestions = questionsDB.questions.filter(q => q.difficulty === 'easy');
-      break;
-    case 'medium':
-      filteredQuestions = questionsDB.questions.filter(q => q.difficulty === 'medium');
-      break;
-    case 'hard':
-      filteredQuestions = questionsDB.questions.filter(q => q.difficulty === 'hard');
-      break;
-    case 'easy-medium':
-      filteredQuestions = questionsDB.questions.filter(q => q.difficulty === 'easy' || q.difficulty === 'medium');
-      break;
-    case 'medium-hard':
-      filteredQuestions = questionsDB.questions.filter(q => q.difficulty === 'medium' || q.difficulty === 'hard');
-      break;
-    case 'easy-hard':
-      filteredQuestions = questionsDB.questions.filter(q => q.difficulty === 'easy' || q.difficulty === 'hard');
-      break;
-    case 'mixed':
-    default:
-      filteredQuestions = [...questionsDB.questions];
-      break;
+  if (filteredQuestions.length === 0) {
+    console.error(`No questions found for difficulty: ${difficulty}`);
+    return null;
   }
   
-  // Sélectionner aléatoirement parmi les questions filtrées
-  const selected = [];
-  const available = [...filteredQuestions];
-  
-  for (let i = 0; i < count && available.length > 0; i++) {
-    const randomIndex = Math.floor(Math.random() * available.length);
-    selected.push(available[randomIndex]);
-    available.splice(randomIndex, 1);
-  }
-  
-  console.log(`Selected ${selected.length} questions with difficulty: ${gameState.difficulty}`);
-  return selected;
+  const randomIndex = Math.floor(Math.random() * filteredQuestions.length);
+  return filteredQuestions[randomIndex];
 }
 
 // -------------------------
@@ -700,28 +551,23 @@ io.on("connection", (socket) => {
         // Si c'est le tour du joueur et qu'il y a une question en cours
         if (gameState.questionSession && gameState.questionSession.playerSlot === existingPlayer.slot) {
           const session = gameState.questionSession;
-          if (session.currentIndex < session.questions.length) {
-            const currentQuestion = session.questions[session.currentIndex];
+          // Si pas encore choisi la difficulté, renvoyer le prompt
+          if (!session.chosenDifficulty) {
+            setTimeout(() => {
+              socket.emit("chooseDifficultyPrompt", {
+                slot: existingPlayer.slot
+              });
+            }, 500);
+          } else if (session.question && !session.answered) {
+            // Si difficulté choisie mais pas encore répondu, renvoyer la question
             setTimeout(() => {
               socket.emit("questionStart", {
-                totalQuestions: 5,
-                currentIndex: session.currentIndex,
-                question: currentQuestion.question,
-                options: currentQuestion.options,
-                difficulty: currentQuestion.difficulty
+                question: session.question.question,
+                options: session.question.options,
+                difficulty: session.question.difficulty
               });
             }, 500);
           }
-        }
-        
-        // Si c'est le tour du joueur et qu'il est en phase de carte
-        if (gameState.cardInProgress && gameState.cardInProgress.playerSlot === existingPlayer.slot) {
-          setTimeout(() => {
-            socket.emit("physicalCard", {
-              slot: existingPlayer.slot,
-              playerName: existingPlayer.username
-            });
-          }, 500);
         }
         
         return;
@@ -861,7 +707,6 @@ io.on("connection", (socket) => {
         diceRolls: [],
         questionsAnswered: 0,
         questionsCorrect: 0,
-        cardsPlayed: 0,
         totalMovement: 0,
         goodLuckHits: 0,
         badLuckHits: 0,
@@ -945,93 +790,106 @@ io.on("connection", (socket) => {
     handleSpecialCell(player, 0, true); // fromDiceRoll = true
   });
   
-  // Answer question
-  socket.on("answerQuestion", (data) => {
+  // Player chooses difficulty for question
+  socket.on("chooseDifficulty", (data) => {
     if (!gameState.active || gameState.phase !== 'question') return;
     if (!gameState.questionSession) return;
     
     const player = getPlayerBySocketId(socket.id);
     if (!player || player.slot !== gameState.currentTurn) return;
     
+    const { difficulty } = data; // 'easy', 'medium', or 'hard'
+    
+    if (!['easy', 'medium', 'hard'].includes(difficulty)) {
+      socket.emit("errorMessage", { message: "Invalid difficulty" });
+      return;
+    }
+    
+    // Get 1 random question of chosen difficulty
+    const question = getRandomQuestion(difficulty);
+    
+    if (!question) {
+      socket.emit("errorMessage", { message: "No questions available for this difficulty" });
+      return;
+    }
+    
+    // Store in session
+    gameState.questionSession.chosenDifficulty = difficulty;
+    gameState.questionSession.question = question;
+    
+    // Send question to player
+    io.to(player.socketId).emit("questionStart", {
+      question: question.question,
+      options: question.options,
+      difficulty: question.difficulty
+    });
+  });
+  
+  // Answer question
+  socket.on("answerQuestion", (data) => {
+    if (!gameState.active || gameState.phase !== 'question') return;
+    if (!gameState.questionSession || !gameState.questionSession.question) return;
+    
+    const player = getPlayerBySocketId(socket.id);
+    if (!player || player.slot !== gameState.currentTurn) return;
+    
+    if (gameState.questionSession.answered) return; // Already answered
+    
     const { answerIndex } = data;
     const session = gameState.questionSession;
-    const currentQuestion = session.questions[session.currentIndex];
+    const question = session.question;
     
     // Check if answer is correct
-    const isCorrect = answerIndex === currentQuestion.correctAnswer;
+    const isCorrect = answerIndex === question.correctAnswer;
+    
+    // Update stats
+    player.stats.questionsAnswered++;
     if (isCorrect) {
-      session.score++;
       player.stats.questionsCorrect++;
     }
-    player.stats.questionsAnswered++;
     
-    session.answers.push({
-      questionId: currentQuestion.id,
-      answerIndex,
-      correct: isCorrect
-    });
+    // Calculate movement based on difficulty and correctness
+    let movement = 0;
+    if (isCorrect) {
+      // Correct: hard = +2, easy/medium = +1
+      movement = session.chosenDifficulty === 'hard' ? 2 : 1;
+    } else {
+      // Wrong: -1 always
+      movement = -1;
+    }
     
-    // Send result back to player
+    // Send result to player
     io.to(player.socketId).emit("questionResult", {
       correct: isCorrect,
-      explanation: currentQuestion.explanation,
-      currentScore: session.score,
-      totalAnswered: session.answers.length
+      explanation: question.explanation,
+      movement: movement
     });
     
-    // Move to next question or finish
-    session.currentIndex++;
+    session.answered = true;
     
-    if (session.currentIndex < session.questions.length) {
-      // Send next question after a delay
-      setTimeout(() => {
-        const nextQuestion = session.questions[session.currentIndex];
-        io.to(player.socketId).emit("questionStart", {
-          totalQuestions: 5,
-          currentIndex: session.currentIndex,
-          question: nextQuestion.question,
-          options: nextQuestion.options,
-          difficulty: nextQuestion.difficulty
-        });
-      }, 2500);
-    } else {
-      // All questions answered
-      const correctCount = session.score;
-      const wrongCount = 5 - correctCount;
-      
-      // Each correct = +1, each wrong = -1
-      const netMovement = correctCount - wrongCount;
-      
-      // Apply movement (can't go below 0)
+    // Apply movement after delay
+    setTimeout(() => {
       const oldPosition = player.position;
-      player.position = Math.max(0, player.position + netMovement);
+      player.position = Math.max(0, player.position + movement);
       const actualMovement = player.position - oldPosition;
       
-      io.to(player.socketId).emit("questionSessionComplete", {
-        correctCount: correctCount,
-        wrongCount: wrongCount,
-        netMovement: netMovement,
+      player.stats.totalMovement += actualMovement;
+      
+      // Notify all players of the result
+      io.emit("questionComplete", {
+        playerSlot: player.slot,
+        playerName: player.username,
+        correct: isCorrect,
+        movement: movement,
         actualMovement: actualMovement,
+        oldPosition: oldPosition,
         newPosition: player.position
       });
       
-      // Notify other players
-      const otherPlayers = gameState.players.filter(p => p.slot !== player.slot);
-      otherPlayers.forEach(p => {
-        io.to(p.socketId).emit("questionSessionComplete", {
-          correctCount: correctCount,
-          wrongCount: wrongCount,
-          netMovement: netMovement,
-          actualMovement: actualMovement,
-          playerSlot: player.slot,
-          playerName: player.username,
-          newPosition: player.position
-        });
-      });
+      broadcastGameState();
       
-      // Check win condition (must be > 45, not >= 45)
+      // Check win condition
       if (player.position > TOTAL_CELLS) {
-        // Délai avant d'afficher la victoire
         setTimeout(() => {
           io.emit("gameWon", {
             winner: {
@@ -1048,66 +906,12 @@ io.on("connection", (socket) => {
       // Clear session
       gameState.questionSession = null;
       
-      // Après les questions, vérifier si on tombe sur une case luck (mais PAS déclencher question/card)
-      // fromDiceRoll = false pour ne pas déclencher les cases question/card
+      // Check for luck cell ONLY (anti-cascade: no new questions)
+      // fromDiceRoll = false to NOT trigger questions
       handleSpecialCell(player, 3000, false);
-    }
+    }, 2500);
   });
   
-  // Manual card result entry
-  socket.on("submitCardResult", (data) => {
-    if (!gameState.active || gameState.phase !== 'card') return;
-    if (!gameState.cardInProgress) return;
-    
-    const player = getPlayerBySocketId(socket.id);
-    if (!player || player.slot !== gameState.currentTurn) return;
-    
-    const { movements } = data;
-    // movements = array of { slot: X, movement: +/-N }
-    
-    const affectedSlots = [];
-    
-    movements.forEach(mov => {
-      const targetPlayer = getPlayerBySlot(mov.slot);
-      if (targetPlayer) {
-        const oldPos = targetPlayer.position;
-        targetPlayer.position = Math.max(0, targetPlayer.position + mov.movement);
-        
-        // Track affected players for luck check
-        affectedSlots.push(mov.slot);
-        
-        // Check win (must be > 45, not >= 45)
-        if (targetPlayer.position > TOTAL_CELLS) {
-          gameState.active = false;
-          io.emit("gameWon", {
-            winner: {
-              slot: targetPlayer.slot,
-              username: targetPlayer.username,
-              avatar: targetPlayer.avatar,
-            },
-          });
-          endGame('won');
-        }
-      }
-    });
-    
-    // Broadcast result
-    io.emit("cardResultApplied", {
-      movements: movements,
-      players: gameState.players.map(p => ({
-        slot: p.slot,
-        position: p.position
-      }))
-    });
-    
-    gameState.cardInProgress = null;
-    
-    if (gameState.active) {
-      // Après une carte, vérifier si TOUS les joueurs affectés tombent sur une case luck
-      handleMultiplePlayersLuck(affectedSlots, 3000);
-    }
-  });
-
   // End game manually (Player 1 only)
   socket.on("endGameManually", () => {
     if (!gameState.active) return;

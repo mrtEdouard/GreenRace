@@ -825,58 +825,40 @@ socket.on("luckEvent", (data) => {
   }, 3000);
 });
 
-socket.on("physicalCard", (data) => {
-  const { slot, playerName } = data;
+// NEW: Prompt to choose difficulty
+socket.on("chooseDifficultyPrompt", (data) => {
+  const { slot } = data;
   
   if (slot === mySlot) {
-    // Current player picks physical card
-    showCardInput();
+    showPhase('difficultyChoice');
   } else {
-    // Block UI updates during message display
-    isSpecialCellMessageDisplaying = true;
-    
-    // Affichage instantané
-    waitingText.innerHTML = `🎴 <strong>${playerName}</strong> is picking a card...`;
+    const player = gamePlayers.find(p => p.slot === slot);
+    waitingText.innerHTML = `❓ <strong>${player ? player.username : `Player ${slot}`}</strong> is choosing difficulty...`;
     showPhase("waiting");
-    
-    // Keep message visible until card result comes
   }
 });
 
-socket.on("cardResultApplied", (data) => {
-  const { movements, players: updatedPositions } = data;
+// NEW: Question complete event
+socket.on("questionComplete", (data) => {
+  const { playerSlot, playerName, correct, movement, actualMovement, oldPosition, newPosition } = data;
   
-  // Block UI updates during message display
-  isSpecialCellMessageDisplaying = true;
-  
-  // Update all affected player positions immediately
-  if (updatedPositions) {
-    updatedPositions.forEach(updated => {
-      const player = gamePlayers.find(p => p.slot === updated.slot);
-      if (player) {
-        player.position = updated.position;
-      }
-    });
-    // Update only positions without changing phase
+  // Update player position
+  const player = gamePlayers.find(p => p.slot === playerSlot);
+  if (player) {
+    player.position = newPosition;
     updatePlayerPositionsDisplay();
   }
   
-  // Affichage instantané pour les résultats de cartes
-  let message = '🎴 <strong>Card result:</strong><br><br>';
-  movements.forEach(mov => {
-    const player = gamePlayers.find(p => p.slot === mov.slot);
-    const isMe = mov.slot === mySlot;
-    const playerName = isMe ? 'You' : (player ? player.username : `Player ${mov.slot}`);
-    message += `${playerName}: ${mov.movement > 0 ? '+' : ''}${mov.movement} cells<br>`;
-  });
+  const isMe = playerSlot === mySlot;
+  const name = isMe ? 'You' : playerName;
+  const result = correct ? '✅ Correct!' : '❌ Wrong!';
   
-  waitingText.innerHTML = message;
+  waitingText.innerHTML = `
+    🌱 <strong>${name}</strong> answered: ${result}<br>
+    Movement: ${movement > 0 ? '+' : ''}${movement} cells<br>
+    Position: Cell ${oldPosition} → Cell ${newPosition}
+  `;
   showPhase("waiting");
-  
-  setTimeout(() => {
-    isSpecialCellMessageDisplaying = false;
-    updateGameUI();
-  }, 3000);
 });
 
 
@@ -1033,12 +1015,8 @@ function updateGameUI() {
   }
 }
 
-// Card phase DOM elements
-const cardTypePhase = document.getElementById("cardTypePhase");
-const cardQuizPhase = document.getElementById("cardQuizPhase");
-const cardGameTypePhase = document.getElementById("cardGameTypePhase");
-const cardGameSoloPhase = document.getElementById("cardGameSoloPhase");
-const cardGame1v1Phase = document.getElementById("cardGame1v1Phase");
+// Difficulty choice phase
+const difficultyChoicePhase = document.getElementById("difficultyChoicePhase");
 
 function showPhase(phaseName) {
   // Hide all phases
@@ -1046,11 +1024,7 @@ function showPhase(phaseName) {
   diceAnimation.classList.add("hidden");
   waitingPhase.classList.add("hidden");
   questionPhase.classList.add("hidden");
-  if (cardTypePhase) cardTypePhase.classList.add("hidden");
-  if (cardQuizPhase) cardQuizPhase.classList.add("hidden");
-  if (cardGameTypePhase) cardGameTypePhase.classList.add("hidden");
-  if (cardGameSoloPhase) cardGameSoloPhase.classList.add("hidden");
-  if (cardGame1v1Phase) cardGame1v1Phase.classList.add("hidden");
+  if (difficultyChoicePhase) difficultyChoicePhase.classList.add("hidden");
 
   // Show requested phase
   switch (phaseName) {
@@ -1066,20 +1040,8 @@ function showPhase(phaseName) {
     case "question":
       questionPhase.classList.remove("hidden");
       break;
-    case "cardType":
-      if (cardTypePhase) cardTypePhase.classList.remove("hidden");
-      break;
-    case "cardQuiz":
-      if (cardQuizPhase) cardQuizPhase.classList.remove("hidden");
-      break;
-    case "cardGameType":
-      if (cardGameTypePhase) cardGameTypePhase.classList.remove("hidden");
-      break;
-    case "cardGameSolo":
-      if (cardGameSoloPhase) cardGameSoloPhase.classList.remove("hidden");
-      break;
-    case "cardGame1v1":
-      if (cardGame1v1Phase) cardGame1v1Phase.classList.remove("hidden");
+    case "difficultyChoice":
+      if (difficultyChoicePhase) difficultyChoicePhase.classList.remove("hidden");
       break;
   }
 }
@@ -1151,13 +1113,13 @@ function selectAnswer(answerIndex) {
 }
 
 function showQuestionResult(data) {
-  const { correct, explanation, currentScore, totalAnswered } = data;
+  const { correct, explanation, movement } = data;
   
   // Play sound
   playSound(correct ? 'correct' : 'wrong');
   
-  // Update score
-  questionScore.textContent = `Score: ${currentScore}/${totalAnswered}`;
+  // Update score display
+  questionScore.textContent = `Movement: ${movement > 0 ? '+' : ''}${movement} cells`;
   
   // Show result
   resultIcon.textContent = correct ? "✅" : "❌";
@@ -1168,110 +1130,8 @@ function showQuestionResult(data) {
   questionResult.classList.remove("hidden");
 }
 
-function showQuestionSessionComplete(data) {
-  if (data.playerSlot && data.playerSlot !== mySlot) {
-    // Other player finished - affichage instantané
-    const player = gamePlayers.find(p => p.slot === data.playerSlot);
-    if (player) {
-      player.position = data.newPosition;
-    }
-    
-    const message = `🌱 <strong>${data.playerName}</strong> answered ${data.correctCount}/5 correctly.<br>Movement: ${data.actualMovement > 0 ? '+' : ''}${data.actualMovement} cells`;
-    waitingText.innerHTML = message;
-    showPhase("waiting");
-  } else {
-    // Current player finished - affichage instantané
-    const { correctCount, wrongCount, netMovement, actualMovement, newPosition } = data;
-    
-    // Update own position immediately
-    const player = gamePlayers.find(p => p.slot === mySlot);
-    if (player) {
-      player.position = newPosition;
-    }
-    
-    let message = `🌱 <strong>Quiz complete!</strong><br><br>`;
-    message += `Correct: ${correctCount} (+${correctCount})<br>`;
-    message += `Wrong: ${wrongCount} (-${wrongCount})<br>`;
-    message += `Net movement: ${netMovement > 0 ? '+' : ''}${netMovement}<br>`;
-    
-    if (actualMovement !== netMovement) {
-      message += `Actual movement: ${actualMovement > 0 ? '+' : ''}${actualMovement} (can't go below 0)<br>`;
-    }
-    
-    message += `<br>New position: Cell ${newPosition}`;
-    
-    waitingText.innerHTML = message;
-    showPhase("waiting");
-  }
-}
-
-
-function showCardInput() {
-  // Show card type selection modal
-  showPhase('cardType');
-}
-
-function selectCardType(type) {
-  if (isSpectator) return; // Bloquer les spectateurs
-  if (type === 'quiz') {
-    // Question card
-    showPhase('cardQuiz');
-  } else if (type === 'game') {
-    // Game card
-    showPhase('cardGameType');
-  }
-}
-
-function submitQuizCard() {
-  if (isSpectator) return; // Bloquer les spectateurs
-  const targetSlot = parseInt(document.getElementById('quizTargetPlayer').value);
-  const correct = document.getElementById('quizCorrect').checked;
-  
-  // Validation: ne peut pas sélectionner son propre numéro
-  if (targetSlot === mySlot) {
-    alert('You cannot select yourself!');
-    return;
-  }
-  
-  // Validation: doit être un numéro valide
-  if (isNaN(targetSlot) || targetSlot < 1 || targetSlot > 4) {
-    alert('Please enter a valid player number (1-4)');
-    return;
-  }
-  
-  // Validation: doit sélectionner une réponse
-  if (!document.getElementById('quizCorrect').checked && !document.getElementById('quizWrong').checked) {
-    alert('Please select if the answer was correct or wrong');
-    return;
-  }
-  
-  // Si l'adversaire répond correctement: adversaire +1, moi -1
-  // Si l'adversaire répond faux: moi +1, adversaire -1
-  const movements = [
-    { slot: mySlot, movement: correct ? -1 : 1 },
-    { slot: targetSlot, movement: correct ? 1 : -1 }
-  ];
-  
-  socket.emit('submitCardResult', { movements });
-  document.getElementById('quizTargetPlayer').value = '';
-  document.getElementById('quizCorrect').checked = false;
-  document.getElementById('quizWrong').checked = false;
-}
-
-function selectGameType(type) {
-  if (isSpectator) return; // Bloquer les spectateurs
-  if (type === 'solo') {
-    showPhase('cardGameSolo');
-  } else if (type === '1v1') {
-    showPhase('cardGame1v1');
-  }
-}
-
-function submitSoloGame(won) {
-  if (isSpectator) return; // Bloquer les spectateurs
-  const movements = [{ slot: mySlot, movement: won ? 2 : -2 }];
-  socket.emit('submitCardResult', { movements });
-}
+// Removed old question session handler - no longer needed
+// New system uses single question with difficulty choice
 
 // =====================================
 // SAVE GAME & HISTORY
@@ -1478,17 +1338,15 @@ socket.on('gameHistory', (history) => {
 // =====================================
 
 // Cell type configuration (same as server)
-const QUESTION_CELLS = [5, 12, 19, 26, 33, 40];
+const QUESTION_CELLS = [5, 9, 12, 16, 19, 23, 26, 30, 33, 37, 40, 44];  // 12 cells
 const BAD_LUCK_CELLS = [3, 10, 17, 24, 31, 38];
 const GOOD_LUCK_CELLS = [7, 14, 21, 28, 35, 42];
-const CARD_CELLS = [9, 16, 23, 30, 37, 44];
 const TOTAL_CELLS = 45;
 
 function getCellType(position) {
   if (QUESTION_CELLS.includes(position)) return 'question';
   if (BAD_LUCK_CELLS.includes(position)) return 'badluck';
   if (GOOD_LUCK_CELLS.includes(position)) return 'goodluck';
-  if (CARD_CELLS.includes(position)) return 'card';
   return 'normal';
 }
 
@@ -1535,7 +1393,6 @@ function renderBoardModal() {
     if (cellType === 'question') cellTypeIcon.textContent = '❓';
     else if (cellType === 'goodluck') cellTypeIcon.textContent = '🍀';
     else if (cellType === 'badluck') cellTypeIcon.textContent = '⚠️';
-    else if (cellType === 'card') cellTypeIcon.textContent = '🎮';
     else if (i === 0) cellTypeIcon.textContent = '🚀';
     else if (i > 45) cellTypeIcon.textContent = '🏁';
     cell.appendChild(cellTypeIcon);
@@ -1558,37 +1415,10 @@ function renderBoardModal() {
   }
 }
 
-function submit1v1Game() {
-  if (isSpectator) return; // Bloquer les spectateurs
-  const opponentSlot = parseInt(document.getElementById('gameOpponent').value);
-  const youWon = document.getElementById('gameWon').checked;
-  
-  // Validation: ne peut pas sélectionner son propre numéro
-  if (opponentSlot === mySlot) {
-    alert('You cannot select yourself!');
-    return;
-  }
-  
-  // Validation: doit être un numéro valide
-  if (isNaN(opponentSlot) || opponentSlot < 1 || opponentSlot > 4) {
-    alert('Please enter a valid opponent number (1-4)');
-    return;
-  }
-  
-  // Validation: doit sélectionner un résultat
-  if (!document.getElementById('gameWon').checked && !document.getElementById('gameLost').checked) {
-    alert('Please select if you won or lost');
-    return;
-  }
-  
-  const movements = [
-    { slot: mySlot, movement: youWon ? 1 : -1 },
-    { slot: opponentSlot, movement: youWon ? -1 : 1 }
-  ];
-  
-  socket.emit('submitCardResult', { movements });
-  document.getElementById('gameOpponent').value = '';
-  document.getElementById('gameWon').checked = false;
-  document.getElementById('gameLost').checked = false;
+// Nouvelle fonction pour choisir la difficulté
+function chooseDifficulty(difficulty) {
+  if (isSpectator) return;
+  socket.emit('chooseDifficulty', { difficulty });
+  playSound('question');
 }
 
