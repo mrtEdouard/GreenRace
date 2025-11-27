@@ -293,7 +293,7 @@ function handleMultiplePlayersLuck(affectedSlots, delay = 3000) {
         if (cellType === 'goodluck') {
           const luckEvent = getGoodLuckEvent();
           const oldPosition = player.position;
-          player.position = Math.min(player.position + luckEvent.value, TOTAL_CELLS);
+          player.position = player.position + luckEvent.value;
           const actualMovement = player.position - oldPosition;
           
           player.stats.goodLuckHits++;
@@ -438,7 +438,7 @@ function handleSpecialCell(player, delayBeforeCheck = 0, fromDiceRoll = true) {
       const luckEvent = getGoodLuckEvent();
       
       const oldPosition = player.position;
-      player.position = Math.min(player.position + luckEvent.value, TOTAL_CELLS);
+      player.position = player.position + luckEvent.value;
       const actualMovement = player.position - oldPosition;
       
       player.stats.goodLuckHits++;
@@ -898,7 +898,7 @@ io.on("connection", (socket) => {
     
     const diceResult = rollWeightedDice();
     const oldPosition = player.position;
-    player.position = Math.min(player.position + diceResult, TOTAL_CELLS);
+    player.position = player.position + diceResult; // Allow going past 45 to win
     
     // Tracker le lancer de dé
     player.stats.diceRolls.push(diceResult);
@@ -1004,7 +1004,7 @@ io.on("connection", (socket) => {
       
       // Apply movement (can't go below 0)
       const oldPosition = player.position;
-      player.position = Math.max(0, Math.min(player.position + netMovement, TOTAL_CELLS));
+      player.position = Math.max(0, player.position + netMovement);
       const actualMovement = player.position - oldPosition;
       
       io.to(player.socketId).emit("questionSessionComplete", {
@@ -1071,7 +1071,7 @@ io.on("connection", (socket) => {
       const targetPlayer = getPlayerBySlot(mov.slot);
       if (targetPlayer) {
         const oldPos = targetPlayer.position;
-        targetPlayer.position = Math.max(0, Math.min(targetPlayer.position + mov.movement, TOTAL_CELLS));
+        targetPlayer.position = Math.max(0, targetPlayer.position + mov.movement);
         
         // Track affected players for luck check
         affectedSlots.push(mov.slot);

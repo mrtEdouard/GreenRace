@@ -140,6 +140,15 @@
       ⏹️ End Game
     </button>
 
+    <!-- Board View Button (visible during game) -->
+    <button
+      id="boardViewButton"
+      class="secondary-button board-view-btn hidden"
+      title="View Board"
+    >
+      🎲 View Board
+    </button>
+
     <!-- ================== GAME SCREEN ================== -->
     <section id="gameScreen" class="hidden">
       <div class="game-card">
@@ -371,6 +380,29 @@
         </div>
       </div>
     </section>
+
+    <!-- ================== BOARD VIEW MODAL ================== -->
+    <div id="boardModal" class="modal hidden">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content" style="max-width: 800px">
+        <h3>🎲 Game Board</h3>
+        <p class="modal-subtitle">Current player positions on the board</p>
+        <div id="boardGrid" class="board-grid">
+          <!-- Board cells will be generated here -->
+        </div>
+        <div class="board-legend">
+          <div class="legend-item"><span class="legend-symbol">❓</span> Question Cell</div>
+          <div class="legend-item"><span class="legend-symbol">🍀</span> Good Luck (+2)</div>
+          <div class="legend-item"><span class="legend-symbol">⚠️</span> Bad Luck (-2)</div>
+          <div class="legend-item"><span class="legend-symbol">🎮</span> Game Card</div>
+        </div>
+        <div class="modal-actions">
+          <button id="closeBoardModalButton" class="secondary-button">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
 
     <!-- ================== AVATAR MODAL ================== -->
     <div id="avatarModal" class="modal hidden">
