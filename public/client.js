@@ -604,7 +604,15 @@ rollDiceButton.addEventListener("click", () => {
 
 // Game socket handlers
 socket.on("gameStateUpdate", (state) => {
-  console.log("Received game state update:", state);
+  console.log("%c[GAME STATE UPDATE]", "color: blue; font-weight: bold");
+  console.log("  - Active:", state.active);
+  console.log("  - Current turn (slot):", state.currentTurn);
+  console.log("  - Phase:", state.phase);
+  console.log("  - My slot:", mySlot);
+  console.log("  - Is my turn:", state.currentTurn === mySlot);
+  console.log("  - Dice animation playing:", isDiceAnimationPlaying);
+  console.log("  - Special message displaying:", isSpecialCellMessageDisplaying);
+  
   gameActive = state.active;
   currentGameTurn = state.currentTurn;
   currentGamePhase = state.phase;
@@ -612,7 +620,10 @@ socket.on("gameStateUpdate", (state) => {
 
   // Forcer la mise à jour de l'UI seulement si l'animation du dé ou un message spécial n'est pas en cours
   if (gameActive && !isDiceAnimationPlaying && !isSpecialCellMessageDisplaying) {
+    console.log("  → Calling updateGameUI()");
     updateGameUI();
+  } else {
+    console.log("  → Skipping updateGameUI (blocked by animation or message)");
   }
 });
 
@@ -799,7 +810,16 @@ function updatePlayerPositionsDisplay() {
 }
 
 function updateGameUI() {
-  if (!gameActive) return;
+  if (!gameActive) {
+    console.log("%c[updateGameUI] Game not active, returning", "color: gray");
+    return;
+  }
+  
+  console.log("%c[updateGameUI]", "color: green; font-weight: bold");
+  console.log("  - Current turn:", currentGameTurn);
+  console.log("  - Current phase:", currentGamePhase);
+  console.log("  - My slot:", mySlot);
+  console.log("  - Is my turn:", currentGameTurn === mySlot);
 
   // Update turn indicator
   const currentPlayer = gamePlayers.find((p) => p.slot === currentGameTurn);
