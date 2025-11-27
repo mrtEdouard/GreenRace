@@ -621,8 +621,8 @@ socket.on("diceRolled", (data) => {
   const player = gamePlayers.find(p => p.slot === slot);
   if (player) {
     player.position = newPosition;
-    // Force UI update to show new position
-    updateGameUI();
+    // Update only the position display without changing the phase
+    updatePlayerPositionsDisplay();
   }
   
   showDiceAnimation(data);
@@ -657,8 +657,8 @@ socket.on("luckEvent", (data) => {
   // Update player position immediately
   if (player) {
     player.position = newPosition;
-    // Force UI update to show new position
-    updateGameUI();
+    // Update only positions without changing phase
+    updatePlayerPositionsDisplay();
   }
   
   // Affichage instantané pour les événements de chance
@@ -694,8 +694,8 @@ socket.on("cardResultApplied", (data) => {
         player.position = updated.position;
       }
     });
-    // Force UI update to show new positions
-    updateGameUI();
+    // Update only positions without changing phase
+    updatePlayerPositionsDisplay();
   }
   
   // Affichage instantané pour les résultats de cartes
@@ -733,6 +733,41 @@ socket.on("gameWon", (data) => {
 
 // Game UI functions
 let lastDisplayedTurn = null; // Track to avoid duplicate "is playing" messages
+
+// Update only player positions display without changing phases
+function updatePlayerPositionsDisplay() {
+  playerPositions.innerHTML = "";
+  gamePlayers.forEach((player) => {
+    const posCard = document.createElement("div");
+    posCard.classList.add("position-card");
+    if (player.slot === currentGameTurn) {
+      posCard.classList.add("is-current-turn");
+    }
+    
+    if (player.connected === false) {
+      posCard.classList.add("disconnected");
+    }
+
+    const meta = avatarMeta[player.avatar] || { emoji: "🌱", lottie: null };
+    const avatarContent = meta.lottie 
+      ? `<lottie-player src="${meta.lottie}" background="transparent" speed="1" loop autoplay></lottie-player>`
+      : meta.emoji;
+
+    const connectionStatus = player.connected === false 
+      ? '<span class="connection-status offline">⚫ Offline</span>'
+      : '<span class="connection-status online">🟢 Online</span>';
+
+    posCard.innerHTML = `
+      <div class="position-player-number">Player ${player.slot}</div>
+      <div class="position-player-avatar">${avatarContent}</div>
+      <span class="position-player-name">${player.username}</span>
+      ${connectionStatus}
+      <span class="position-value">Cell ${player.position}</span>
+    `;
+
+    playerPositions.appendChild(posCard);
+  });
+}
 
 function updateGameUI() {
   if (!gameActive) return;
