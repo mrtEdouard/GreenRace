@@ -809,6 +809,9 @@ io.on("connection", (socket) => {
       newPosition: player.position,
     });
     
+    // Broadcast immediate position update
+    broadcastGameState();
+    
     // Check for win condition
     if (player.position >= TOTAL_CELLS) {
       io.emit("gameWon", {

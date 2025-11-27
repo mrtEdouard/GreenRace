@@ -615,8 +615,17 @@ socket.on("gameStateUpdate", (state) => {
 });
 
 socket.on("diceRolled", (data) => {
+  const { slot, result, newPosition } = data;
+  
+  // Update local player position immediately for visual feedback
+  const player = gamePlayers.find(p => p.slot === slot);
+  if (player) {
+    player.position = newPosition;
+    // Force UI update to show new position
+    updateGameUI();
+  }
+  
   showDiceAnimation(data);
-  // Ne pas appeler updateGameUI ici - le serveur gère la suite
 });
 
 // Question system handlers
@@ -645,6 +654,13 @@ socket.on("luckEvent", (data) => {
   const playerName = player ? player.username : `Player ${slot}`;
   const isMe = slot === mySlot;
   
+  // Update player position immediately
+  if (player) {
+    player.position = newPosition;
+    // Force UI update to show new position
+    updateGameUI();
+  }
+  
   // Affichage instantané pour les événements de chance
   waitingText.innerHTML = `
     ${type === 'good' ? '🍀' : '⚠️'} <strong>${event.message}</strong><br>
@@ -668,7 +684,19 @@ socket.on("physicalCard", (data) => {
 });
 
 socket.on("cardResultApplied", (data) => {
-  const { movements } = data;
+  const { movements, players: updatedPositions } = data;
+  
+  // Update all affected player positions immediately
+  if (updatedPositions) {
+    updatedPositions.forEach(updated => {
+      const player = gamePlayers.find(p => p.slot === updated.slot);
+      if (player) {
+        player.position = updated.position;
+      }
+    });
+    // Force UI update to show new positions
+    updateGameUI();
+  }
   
   // Affichage instantané pour les résultats de cartes
   let message = '🎴 <strong>Card result:</strong><br><br>';
@@ -920,12 +948,23 @@ function showQuestionResult(data) {
 function showQuestionSessionComplete(data) {
   if (data.playerSlot && data.playerSlot !== mySlot) {
     // Other player finished - affichage instantané
+    const player = gamePlayers.find(p => p.slot === data.playerSlot);
+    if (player) {
+      player.position = data.newPosition;
+    }
+    
     const message = `🌱 <strong>${data.playerName}</strong> answered ${data.correctCount}/5 correctly.<br>Movement: ${data.actualMovement > 0 ? '+' : ''}${data.actualMovement} cells`;
     waitingText.innerHTML = message;
     showPhase("waiting");
   } else {
     // Current player finished - affichage instantané
     const { correctCount, wrongCount, netMovement, actualMovement, newPosition } = data;
+    
+    // Update own position immediately
+    const player = gamePlayers.find(p => p.slot === mySlot);
+    if (player) {
+      player.position = newPosition;
+    }
     
     let message = `🌱 <strong>Quiz complete!</strong><br><br>`;
     message += `Correct: ${correctCount} (+${correctCount})<br>`;
