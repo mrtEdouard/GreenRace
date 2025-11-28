@@ -47,7 +47,10 @@ const audioContext = {
   isMusicPlaying: false,
   isSoundEnabled: true,
   musicVolume: 0.3,
-  soundVolume: 0.5
+  soundVolume: 0.5,
+  // Précharger les sons WAV
+  goodluckSound: null,
+  badluckSound: null
 };
 
 // Initialize audio (with placeholder sounds using Web Audio API)
@@ -57,13 +60,37 @@ function initAudio() {
   audioContext.backgroundMusic.loop = true;
   audioContext.backgroundMusic.volume = audioContext.musicVolume;
   // audioContext.backgroundMusic.src = 'sounds/background-music.mp3'; // Add your music file
+  
+  // Précharger les sons WAV pour +2 et -2
+  audioContext.goodluckSound = new Audio('sounds/+2sound.wav');
+  audioContext.goodluckSound.volume = audioContext.soundVolume;
+  
+  audioContext.badluckSound = new Audio('sounds/-2sound.wav');
+  audioContext.badluckSound.volume = audioContext.soundVolume;
 }
 
 // Play sound effect
 function playSound(type) {
   if (!audioContext.isSoundEnabled) return;
   
-  // Create simple beep sounds using Web Audio API as placeholder
+  // Pour goodluck et badluck, utiliser les fichiers WAV
+  if (type === 'goodluck' && audioContext.goodluckSound) {
+    // Clone pour permettre plusieurs sons simultanés
+    const sound = audioContext.goodluckSound.cloneNode();
+    sound.volume = audioContext.soundVolume;
+    sound.play().catch(e => console.log('Goodluck sound failed:', e));
+    return;
+  }
+  
+  if (type === 'badluck' && audioContext.badluckSound) {
+    // Clone pour permettre plusieurs sons simultanés
+    const sound = audioContext.badluckSound.cloneNode();
+    sound.volume = audioContext.soundVolume;
+    sound.play().catch(e => console.log('Badluck sound failed:', e));
+    return;
+  }
+  
+  // Pour les autres sons, utiliser Web Audio API comme avant
   const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   const oscillator = audioCtx.createOscillator();
   const gainNode = audioCtx.createGain();
@@ -78,16 +105,6 @@ function playSound(type) {
       oscillator.frequency.value = 400;
       oscillator.start();
       oscillator.stop(audioCtx.currentTime + 0.1);
-      break;
-    case 'goodluck':
-      oscillator.frequency.value = 600;
-      oscillator.start();
-      oscillator.stop(audioCtx.currentTime + 0.2);
-      break;
-    case 'badluck':
-      oscillator.frequency.value = 200;
-      oscillator.start();
-      oscillator.stop(audioCtx.currentTime + 0.3);
       break;
     case 'question':
       oscillator.frequency.value = 500;
