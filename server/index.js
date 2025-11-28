@@ -173,6 +173,46 @@ function validateSlot(slot) {
 // Helper functions
 // -------------------------
 
+// Vérifier si un socket est réellement connecté
+function isSocketConnected(socketId) {
+  const socket = io.sockets.sockets.get(socketId);
+  return socket && socket.connected;
+}
+
+// Nettoyer les connexions dupliquées/fantômes avant d'ajouter un joueur
+function cleanupDuplicateConnections(username, newSocketId) {
+  // Compter le nombre de doublons avant nettoyage
+  const duplicatesInWaiting = waitingRoom.filter(p => p.username === username).length;
+  const duplicatesInGame = gameState.active ? gameState.players.filter(p => p.username === username).length : 0;
+  
+  if (duplicatesInWaiting > 0 || duplicatesInGame > 0) {
+    console.log(`\u26a0\ufe0f  Cleaning up duplicate connections for user: ${username}`);
+    console.log(`   - Found ${duplicatesInWaiting} duplicate(s) in waiting room`);
+    console.log(`   - Found ${duplicatesInGame} duplicate(s) in game state`);
+  }
+  
+  // Retirer du waiting room toutes les anciennes connexions de cet utilisateur
+  const beforeCount = waitingRoom.length;
+  waitingRoom = waitingRoom.filter(p => p.username !== username || p.socketId === newSocketId);
+  const afterCount = waitingRoom.length;
+  
+  if (beforeCount !== afterCount) {
+    console.log(`   \u2705 Removed ${beforeCount - afterCount} ghost player(s) from waiting room`);
+  }
+  
+  // Dans le game state, mettre à jour le socketId si le joueur existe
+  if (gameState.active) {
+    gameState.players.forEach(p => {
+      if (p.username === username && p.socketId !== newSocketId) {
+        console.log(`   \u2705 Updated socketId for ${username}: ${p.socketId} -> ${newSocketId}`);
+        p.socketId = newSocketId;
+        p.connected = true;
+        p.lastHeartbeat = Date.now();
+      }
+    });
+  }
+}
+
 function getNextAvailableSlot() {
   const usedSlots = waitingRoom.map((p) => p.slot).sort((a, b) => a - b);
   let slot = 1;
@@ -500,6 +540,30 @@ setInterval(() => {
   }
 }, 2000); // Vérification toutes les 2 secondes
 
+// Nettoyage périodique des joueurs fantômes dans le waiting room (toutes les 30 secondes)
+setInterval(() => {
+  if (gameState.active) return; // Ne nettoyer que si pas de jeu en cours
+  
+  const beforeCount = waitingRoom.length;
+  let ghostCount = 0;
+  
+  waitingRoom = waitingRoom.filter(player => {
+    const socketExists = isSocketConnected(player.socketId);
+    if (!socketExists) {
+      console.log(`👻 Removing ghost player from waiting room: ${player.username} (socket ${player.socketId})`);
+      ghostCount++;
+      return false;
+    }
+    return true;
+  });
+  
+  if (ghostCount > 0) {
+    console.log(`✅ Cleaned up ${ghostCount} ghost player(s) from waiting room`);
+    reindexSlots();
+    broadcastWaitingRoomState();
+  }
+}, 30000); // Nettoyage toutes les 30 secondes
+
 io.on("connection", (socket) => {
   console.log("Client connected:", socket.id);
 
@@ -611,12 +675,10 @@ io.on("connection", (socket) => {
       return;
     }
 
-    const slot = getNextAvailableSlot();
-
     let username =
       typeof data.username === "string" ? data.username.trim() : "";
     if (!username) {
-      username = `Player ${slot}`;
+      username = `Player ${getNextAvailableSlot()}`;
     }
     username = username.slice(0, 20); // max length 20 chars
 
@@ -624,6 +686,12 @@ io.on("connection", (socket) => {
       typeof data.avatar === "string" && data.avatar.trim()
         ? data.avatar.trim()
         : "avatarCat";
+    
+    // Nettoyer les connexions dupliquées/fantômes AVANT d'ajouter le joueur
+    cleanupDuplicateConnections(username, socket.id);
+    
+    // Maintenant récupérer le slot après nettoyage
+    const slot = getNextAvailableSlot();
 
     const newPlayer = {
       socketId: socket.id,
@@ -712,6 +780,10 @@ io.on("connection", (socket) => {
         badLuckHits: 0,
       },
     }));
+    
+    // IMPORTANT : Vider le waiting room car les joueurs sont maintenant dans gameState.players
+    console.log(`✅ Game started with ${gameState.players.length} players. Clearing waiting room.`);
+    waitingRoom = [];
     
     io.emit("gameStarted", { startedAt: Date.now() });
     broadcastGameState();
@@ -1024,8 +1096,8 @@ io.on("connection", (socket) => {
   });
 
   // Handle disconnection
-  socket.on("disconnect", () => {
-    console.log("Client disconnected:", socket.id);
+  socket.on("disconnect", (reason) => {
+    console.log(`Client disconnected: ${socket.id} (reason: ${reason})`);
 
     // Si en jeu, marquer le joueur comme déconnecté (mais garder sa place)
     if (gameState.active) {
@@ -1040,7 +1112,8 @@ io.on("connection", (socket) => {
       // Si en waiting room ET pas de jeu actif, retirer du waiting room
       const idx = waitingRoom.findIndex((p) => p.socketId === socket.id);
       if (idx !== -1) {
-        console.log(`Player removed from waiting room: ${waitingRoom[idx].username}`);
+        const removedPlayer = waitingRoom[idx];
+        console.log(`🔴 Player removed from waiting room: ${removedPlayer.username} (slot ${removedPlayer.slot})`);
         waitingRoom.splice(idx, 1);
         reindexSlots();
         broadcastWaitingRoomState();
